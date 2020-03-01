@@ -10,6 +10,6 @@ assignees: mjrode
 ## Description 
 
 ## Items
-[ ] -
-[ ] -
-[ ] -
+- [ ] 
+- [ ] 
+- [ ]
