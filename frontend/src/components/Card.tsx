@@ -16,6 +16,8 @@ import ShareIcon from "@material-ui/icons/Share";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import BookDetails from "./BookDetails";
 import auth0Client from "../utils/auth";
+import SearchIcon from "@material-ui/icons/Search";
+import LocalLibraryRoundedIcon from "@material-ui/icons/LocalLibraryRounded";
 
 const DisplayCard: React.FC<any> = ({ title, url, image, details }) => {
   const [expanded, setExpanded] = useState(false);
@@ -86,11 +88,7 @@ const DisplayCard: React.FC<any> = ({ title, url, image, details }) => {
       className={classes.root}
     >
       <CardHeader
-        avatar={
-          <Avatar aria-label="recipe" className={classes.avatar}>
-            R
-          </Avatar>
-        }
+        avatar={<LocalLibraryRoundedIcon></LocalLibraryRoundedIcon>}
         title={title}
       />
       <CardMedia className={classes.media} image={image} title="Book" />
