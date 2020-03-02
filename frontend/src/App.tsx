@@ -8,9 +8,6 @@ import {
 } from "react-router-dom";
 import Home from "./components/Home";
 import Callback from "./components/Callback";
-import Create from "./components/post/Create";
-import { Post } from "./components/post/Post";
-import { EditPost } from "./components/post/Edit";
 import auth0Client from "./utils/auth";
 import PrivateRoute from "./components/PrivateRoute";
 import NavBar from "./components/NavBar";
@@ -62,18 +59,7 @@ class App extends React.Component<
         <Container>
           <Switch>
             <Route path={"/"} exact={true} component={Home} />
-            <Route path={"/post/:id"} component={Post} />
             <Route path={"/callback"} exact={true} component={Callback} />
-            <PrivateRoute
-              path={"/edit/:id"}
-              component={EditPost}
-              validateSession={this.state.validateSession}
-            />
-            <PrivateRoute
-              path={"/create"}
-              component={Create}
-              validateSession={this.state.validateSession}
-            />
           </Switch>
         </Container>
       </div>
