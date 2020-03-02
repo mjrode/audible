@@ -5,12 +5,16 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { MongooseModule } from '@nestjs/mongoose'; // add this
 import { BlogModule } from './blog/blog.module';
-import { AudioBayModule } from './audiobay/audiobay.module'
+import { AudioBayModule } from './audiobay/audiobay.module';
+import { TransmissionModule } from './transmission/transmission.module';
 @Module({
   imports: [
-    MongooseModule.forRoot('mongodb://localhost/nest-blog-project', { useNewUrlParser: true }),
+    MongooseModule.forRoot('mongodb://localhost/nest-blog-project', {
+      useNewUrlParser: true,
+    }),
     BlogModule,
-    AudioBayModule
+    AudioBayModule,
+    TransmissionModule,
   ],
   controllers: [AppController],
   providers: [AppService],

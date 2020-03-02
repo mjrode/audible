@@ -9,6 +9,7 @@ import CardActions from "@material-ui/core/CardActions";
 import Collapse from "@material-ui/core/Collapse";
 import Avatar from "@material-ui/core/Avatar";
 import IconButton from "@material-ui/core/IconButton";
+import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
 import { red } from "@material-ui/core/colors";
 import FavoriteIcon from "@material-ui/icons/Favorite";
@@ -16,6 +17,8 @@ import ShareIcon from "@material-ui/icons/Share";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import BookDetails from "./BookDetails";
 import auth0Client from "../utils/auth";
+import SearchIcon from "@material-ui/icons/Search";
+import LocalLibraryRoundedIcon from "@material-ui/icons/LocalLibraryRounded";
 
 const DisplayCard: React.FC<any> = ({ title, url, image, details }) => {
   const [expanded, setExpanded] = useState(false);
@@ -24,12 +27,30 @@ const DisplayCard: React.FC<any> = ({ title, url, image, details }) => {
 
   const handleExpandClick = async () => {
     const details: any = await getDetails(url);
-    console.log("Details", details);
 
     setDescription(details.description);
     setInfoHash(details.infoHash);
 
     setExpanded(!expanded);
+  };
+
+  const handleClick = async infoHash => {
+    try {
+      const response = await fetch(`/transmission/add/${infoHash}`, {
+        method: "get",
+        headers: new Headers({
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          authorization: `Bearer ${auth0Client.getIdToken()}`
+        })
+      });
+      const json = await response.json();
+      console.log("Added Book", json);
+      return json;
+    } catch (error) {
+      console.log("Error", error);
+      return false;
+    }
   };
 
   const getDetails = async url => {
@@ -86,11 +107,7 @@ const DisplayCard: React.FC<any> = ({ title, url, image, details }) => {
       className={classes.root}
     >
       <CardHeader
-        avatar={
-          <Avatar aria-label="recipe" className={classes.avatar}>
-            R
-          </Avatar>
-        }
+        avatar={<LocalLibraryRoundedIcon></LocalLibraryRoundedIcon>}
         title={title}
       />
       <CardMedia className={classes.media} image={image} title="Book" />
@@ -118,8 +135,9 @@ const DisplayCard: React.FC<any> = ({ title, url, image, details }) => {
       </CardActions>
       <Collapse in={expanded} unmountOnExit>
         <CardContent>
-          {console.log("info", infoHash)}
-          <Typography variant="h4">{infoHash}</Typography>
+          <Button color="primary" onClick={() => handleClick(infoHash)}>
+            Download AudioBook
+          </Button>
           <Typography paragraph>{description}</Typography>
         </CardContent>
       </Collapse>
