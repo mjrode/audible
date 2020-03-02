@@ -106,7 +106,7 @@ const Home: React.FC<any> = () => {
       </Grid>
 
       {submitSuccess && !loading && (
-        <Grid container spacing={5}>
+        <Grid container spacing={3}>
           {results.map(result => (
             <Grid item style={{ display: "flex" }} key={result.title}>
               <DisplayCard {...setProps(result)}></DisplayCard>
