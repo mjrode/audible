@@ -1,30 +1,98 @@
 import { Injectable } from '@nestjs/common';
 
+import transmissionConfig from './transmission.config';
 const Transmission = require('transmission');
 
 @Injectable()
 export class TransmissionService {
-  constructor(private readonly transmissionConfig) {}
-
   async stats(): Promise<any> {
-    const stats = await this.sessionStatsPromise(
-      this.transmissionConfig.options,
-    );
-    console.log('Stats', stats);
+    const stats = await this.sessionStatsPromise();
     return stats;
+  }
+
+  async addTorrent(hash): Promise<any> {
+    const urlFromHash = `magnet:?xt=urn:btih:${hash}`;
+    const newTorrent: any = await this.addTorrentPromise(urlFromHash, {
+      'download-dir': '/books/incomplete',
+    });
+    console.log('newTorrent', newTorrent);
+    return newTorrent;
+  }
+
+  async getTorrentDetails(): Promise<any> {
+    const details: any = await this.getTorrentDetailsPromise();
+
+    if (details.torrents.length > 0) {
+      details.torrents.forEach(torrent => {
+        console.log('Id =', torrent.id);
+        console.log('Name = ' + torrent.name);
+        console.log('Completed = ' + torrent.percentDone * 100);
+        console.log('Status = ' + this.getStatusType(torrent.status));
+      });
+    }
+
+    return details;
+  }
+
+  async getTorrentDetail(id): Promise<any> {
+    console.log('Id for detail', id);
+    const details: any = await this.getTorrentDetailsPromise(id);
+
+    console.log('Details', details);
+
+    return details;
+  }
+
+  async moveTorrent(id, location = '/books/complete'): Promise<any> {
+    const torrent = await this.moveTorrentPromise(id, location);
+    console.log('Moved Torrent', torrent);
+    return torrent;
   }
 
   sessionStatsPromise = (...args) => {
     return new Promise((resolve, reject) => {
-      this.transmissionClient().sessionStats(...args, (err, data) => {
+      const trans = this.transmissionClient();
+      trans.sessionStats(...args, (err, data) => {
         if (err) return reject(err);
         resolve(data);
       });
     });
   };
 
+  moveTorrentPromise = (...args: any) => {
+    return new Promise((resolve, reject) => {
+      this.transmissionClient().move(args.id, args.location, (err, data) => {
+        if (err) return reject(err);
+        resolve(data);
+      });
+    });
+  };
+
+  addTorrentPromise = (...args) => {
+    return new Promise((resolve, reject) => {
+      this.transmissionClient().addUrl(...args, (err, data) => {
+        if (err) return reject(err);
+        resolve(data);
+      });
+    });
+  };
+
+  getTorrentDetailsPromise = (...args: any) => {
+    const parsedArgs = args.map(num => parseInt(num));
+    return new Promise((resolve, reject) => {
+      this.transmissionClient().get(...parsedArgs, (err, data) => {
+        if (err) return reject(err);
+        resolve(data);
+      });
+    });
+  };
+
+  getStatusType(type) {
+    return this.transmissionClient().statusArray[type];
+  }
+
   public transmissionClient() {
-    const transmission = new Transmission(this.transmissionConfig.options);
+    const transmission = new Transmission(transmissionConfig());
     return transmission;
   }
 }

@@ -4,7 +4,8 @@ import {
   MiddlewareConsumer,
   RequestMethod,
 } from '@nestjs/common';
-import { TransmissionController } from './transmisson.controller';
+
+import { TransmissionController } from './transmission.controller';
 import { AuthenticationMiddleware } from '../common/authentication.middleware';
 import { TransmissionService } from './transmission.service';
 
