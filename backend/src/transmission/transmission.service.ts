@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
-
 import transmissionConfig from './transmission.config';
-const Transmission = require('transmission');
+import * as Transmission from 'transmission';
 
 @Injectable()
 export class TransmissionService {
@@ -35,17 +34,12 @@ export class TransmissionService {
   }
 
   async getTorrentDetail(id): Promise<any> {
-    console.log('Id for detail', id);
     const details: any = await this.getTorrentDetailsPromise(id);
-
-    console.log('Details', details);
-
     return details;
   }
 
   async moveTorrent(id, location = '/books/complete'): Promise<any> {
     const torrent = await this.moveTorrentPromise(id, location);
-    console.log('Moved Torrent', torrent);
     return torrent;
   }
 
@@ -92,7 +86,8 @@ export class TransmissionService {
   }
 
   public transmissionClient() {
-    const transmission = new Transmission(transmissionConfig());
+    const config = transmissionConfig();
+    const transmission = new Transmission(config);
     return transmission;
   }
 }
