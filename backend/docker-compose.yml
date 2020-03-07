@@ -1,0 +1,9 @@
+version: "3"
+services:
+  audible_db:
+    image: "postgres:12"
+    container_name: "audible_db"
+    ports:
+      - "54321:5432"
+    environment:
+      POSTGRES_PASSWORD: password
