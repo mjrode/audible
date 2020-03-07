@@ -1,10 +1,10 @@
-
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { MongooseModule } from '@nestjs/mongoose'; // add this
 import { AudioBayModule } from './audiobay/audiobay.module';
 import { TransmissionModule } from './transmission/transmission.module';
+import { GdriveModule } from './gdrive/gdrive.module';
 @Module({
   imports: [
     MongooseModule.forRoot('mongodb://localhost/nest-blog-project', {
@@ -12,6 +12,7 @@ import { TransmissionModule } from './transmission/transmission.module';
     }),
     AudioBayModule,
     TransmissionModule,
+    GdriveModule,
   ],
   controllers: [AppController],
   providers: [AppService],
