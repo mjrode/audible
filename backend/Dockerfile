@@ -16,6 +16,7 @@ RUN npm install
 
 # Bundle the apps source code inside the Docker image
 COPY . /usr/src/app/backend
+
 CMD ["npm", "start"]
 
 # RUN npm run build

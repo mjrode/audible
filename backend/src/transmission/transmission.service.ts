@@ -6,6 +6,7 @@ import * as Transmission from 'transmission';
 export class TransmissionService {
   async stats(): Promise<any> {
     const stats = await this.sessionStatsPromise();
+    console.log('statss', stats);
     return stats;
   }
 
