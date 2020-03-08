@@ -1,17 +1,23 @@
 version: "3.7"
 
 services:
-  db:
-    image: postgres:12
-    restart: always
-    env_file:
-      - .local.env
-
-    # POSTGRES_USER: ${POSTGRES_USER}
-
-    # command: "echo HELLO ${PWD} ${DB_USER}"
+  backend:
+    build: ./backend
+    volumes:
+      - .:/backend/usr/src/spp
+      - /backend/usr/src/app/node_modules
     ports:
-      - 56001:5432
+      - "52000:5000"
+    command: npm run start:dev
+  # db:
+  #   image: postgres:12
+  #   restart: always
+  #   env_file:
+  #     - .local.env
+  #   # POSTGRES_USER: ${POSTGRES_USER}
+  #   # command: "echo HELLO ${PWD} ${DB_USER}"
+  #   ports:
+  #     - 56001:5432
 # networks:
 #   development:
 # services:
