@@ -1,0 +1,44 @@
+version: "3.7"
+
+services:
+  db:
+    image: postgres:12
+    restart: always
+    env_file:
+      - .local.env
+
+    # POSTGRES_USER: ${POSTGRES_USER}
+
+    # command: "echo HELLO ${PWD} ${DB_USER}"
+    ports:
+      - 56001:5432
+# networks:
+#   development:
+# services:
+#   app:
+#     build:
+#       context: .
+#       target: development
+#     command: npm run start:dev
+#     volumes:
+#       - .:/usr/src/app
+#       - /usr/src/app/node_modules
+#     ports:
+#       # Host port : Container port
+#       - ${SERVER_PORT}:${SERVER_PORT}
+#     env_file:
+#       - .env
+#     networks:
+#       - development
+#     depends_on:
+#       - postgres
+#   postgres:
+#     image: postgres:12
+#     container_name: audible-postgres
+#     hostname: audible-postgres
+#     networks:
+#       - development
+#     ports:
+#       - 5001:5432
+#     volumes:
+#       - /var/lib/postgresql/data

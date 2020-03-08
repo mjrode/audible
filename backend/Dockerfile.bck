@@ -1,19 +1,15 @@
 # This is the image that we want to build from
-FROM node:12.13-alpine
+FROM node:12.13-alpine As development
 
 # Directory to hold the app code inside the image.
 # This is the working directory for your application
 WORKDIR /usr/src/app
 
-
 # Copy both package.json and package-lock.json to the working directory
-# Order is important
 COPY package*.json ./
 
 # Install dependencies
-RUN npm install
-# If you are building for production we would use
-# RUN npm ci --only-production
+RUN npm install --only=development
 
 # Bundle the apps source code inside the Docker image
 COPY . .
@@ -36,6 +32,3 @@ COPY . .
 COPY --from=development /usr/src/app/dist ./dist
 
 CMD ["node", "dist/main"]
-
-
-The ADD instruction copies new files, directories or remote file URLs from <src> and adds them to the filesystem of the image at the path <dest>.

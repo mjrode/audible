@@ -1,8 +1,6 @@
 import { Module, NestModule, MiddlewareConsumer, RequestMethod } from '@nestjs/common';
 import {  AudioBayController } from './audiobay.controller';
 import { AudioBayService } from './audiobay.service';
-import { MongooseModule } from '@nestjs/mongoose';
-// import { AudioBaySchema } from './schemas/audiobay.schema';
 import { AuthenticationMiddleware } from '../common/authentication.middleware';
 
 @Module({
