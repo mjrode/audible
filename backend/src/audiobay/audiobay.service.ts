@@ -8,7 +8,6 @@ export class AudioBayService {
     const url = this.buildUrl(term, page);
     const response = await this.fetchBooks(url);
     const res = response.results.toArray().filter(book => book.title);
-    console.log('res', res);
     return res;
   }
 
@@ -40,27 +39,32 @@ export class AudioBayService {
     }
   }
   async fetchBooks(url) {
-    const httpClient = axios;
-    const response = await httpClient.get(url);
-    const $ = cheerio.load(response.data);
+    try {
+      const httpClient = axios;
+      const response = await httpClient.get(url);
+      const $ = cheerio.load(response.data);
 
-    let results = $('#content .post ').map((i, post) => {
-      const title = $('.postTitle h2', post).text();
-      const url = $('.postMeta .postLink a', post).attr('href');
-      const details = $('.postInfo', post).text();
-      const image = $('.postContent .center a img', post).attr('src');
+      let results = $('#content .post ').map((i, post) => {
+        const title = $('.postTitle h2', post).text();
+        const url = $('.postMeta .postLink a', post).attr('href');
+        const details = $('.postInfo', post).text();
+        const image = $('.postContent .center a img', post).attr('src');
 
-      return { title, url, image, details };
-    });
+        return { title, url, image, details };
+      });
 
-    const pages =
-      results.toArray().length > 1
-        ? $('.wp-pagenavi a')
-            .last()
-            .attr('href')
-        : 0;
+      const pages =
+        results.toArray().length > 1
+          ? $('.wp-pagenavi a')
+              .last()
+              .attr('href')
+          : 0;
 
-    const pageCount = pages.match(/\d+/)[0];
-    return { results, pageCount };
+      const pageCount = pages.match(/\d+/)[0];
+      return { results, pageCount };
+    } catch (error) {
+      console.log('Error', error);
+      return { results: [] };
+    }
   }
 }
