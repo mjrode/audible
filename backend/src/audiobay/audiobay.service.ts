@@ -6,8 +6,12 @@ const cheerio = require('cheerio');
 export class AudioBayService {
   async query(term, page = null): Promise<any> {
     const url = this.buildUrl(term, page);
-    const response = await this.fetchBooks(url);
-    const res = response.results.toArray().filter(book => book.title);
+    const response: any = await this.fetchBooks(url);
+    const res =
+      response.length < 1
+        ? response
+        : response.results.toArray().filter(book => book.title);
+
     return res;
   }
 
@@ -64,7 +68,7 @@ export class AudioBayService {
       return { results, pageCount };
     } catch (error) {
       console.log('Error', error);
-      return { results: [] };
+      return [];
     }
   }
 }

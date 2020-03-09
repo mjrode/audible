@@ -22,7 +22,6 @@ import {
 export interface ISessionState {
   validateSession: boolean;
 }
-
 class App extends React.Component<
   {} & RouteComponentProps<any>,
   ISessionState
