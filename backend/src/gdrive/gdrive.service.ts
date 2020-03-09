@@ -1,26 +1,83 @@
 import { Injectable } from '@nestjs/common';
 const fs = require('fs');
+
 const readline = require('readline');
 import { google } from 'googleapis';
+// import { drive } from 'googleapis/build/src/apis/drive';
+import { pathToFileURL } from 'url';
+import { triggerAsyncId } from 'async_hooks';
 
 @Injectable()
 export class GdriveService {
-  async uploadFile(book): Promise<any> {}
-
-  SCOPES = ['https://www.googleapis.com/auth/drive.metadata.readonly'];
+  SCOPES = ['https://www.googleapis.com/auth/drive'];
   TOKEN_PATH = './token.json';
 
-  getFiles() {
-    fs.readFile(
-      '/Users/michaelrode/Code/projects/audible/backend/src/gdrive/credentials.json',
-      (err, content: any) => {
-        if (err) return console.log('Error loading client secret file:', err);
-        // Authorize a client with credentials, then call the Google Drive API.
-        this.authorize(JSON.parse(content), this.listFiles);
+  async getFiles() {
+    const auth = await this.authenticateClient();
+    const files = await this.listFilesOrFolders(auth);
+    return files;
+  }
+
+  async findFolder(name: string) {
+    const auth = await this.authenticateClient();
+    const files = await this.listFilesOrFolders(auth, false);
+    const folder = files.filter(file => file.name === name);
+    console.log('findFolder', folder);
+    return folder;
+  }
+
+  async uploadFile(fileName, folderId = '') {
+    const auth = await this.authenticateClient();
+    console.log('Filename', fileName);
+    const fileSize = fs.statSync(fileName).size;
+    const drive = google.drive({ version: 'v3', auth });
+    const res = await drive.files.create(
+      {
+        requestBody: { name: fileName, parents: [folderId] },
+        media: {
+          body: fs.createReadStream(fileName),
+        },
+      },
+      {
+        onUploadProgress: evt => {
+          const progress = (evt.bytesRead / fileSize) * 100;
+          readline.clearLine();
+          readline.cursorTo(0);
+          process.stdout.write(`${Math.round(progress)}% complete`);
+        },
       },
     );
+    console.log(res.data);
+    return res.data;
   }
-  authorize(credentials, callback) {
+
+  async createConfig() {
+    return {
+      installed: {
+        client_id: process.env.GOOGLE_DRIVE_ClIENT_ID,
+        project_id: process.env.GOOGLE_DRIVE_PROJECT_ID,
+        auth_uri: process.env.GOOGLE_DRIVE_AUTH_URI,
+        token_uri: process.env.GOOGLE_DRIVE_TOKEN_URI,
+        auth_provider_x509_cert_url:
+          process.env.GOOGLE_DRIVE_AUTH_PROVIDER_X509_CERT_URL,
+        client_secret: process.env.GOOGLE_DRIVE_CLIENT_SECRET,
+        redirect_uris: process.env.GOOGLE_DRIVE_REDIRECT_URIS,
+      },
+    };
+  }
+
+  async authenticateClient() {
+    const fileConfig = await fs.readFileSync(
+      '/Users/michaelrode/Code/projects/audible/backend/src/gdrive/credentials.json',
+      'utf8',
+    );
+
+    // Authorize a client with credentials, then call the Google Drive API.
+    const authenticatedClient = await this.authorize(JSON.parse(fileConfig));
+    return authenticatedClient;
+  }
+
+  async authorize(credentials) {
     const { client_secret, client_id, redirect_uris } = credentials.installed;
     const oAuth2Client = new google.auth.OAuth2(
       client_id,
@@ -28,15 +85,19 @@ export class GdriveService {
       redirect_uris[0],
     );
 
-    // Check if we have previously stored a token.
-    fs.readFile(this.TOKEN_PATH, (err, token: any) => {
-      if (err) return this.getAccessToken(oAuth2Client, callback);
+    google.options({ auth: oAuth2Client });
+
+    try {
+      const token = await fs.readFileSync(this.TOKEN_PATH, 'utf8');
       oAuth2Client.setCredentials(JSON.parse(token));
-      callback(oAuth2Client);
-    });
+      return Promise.resolve(oAuth2Client);
+    } catch (error) {
+      await this.getAccessToken(oAuth2Client);
+      return Promise.resolve(oAuth2Client);
+    }
   }
 
-  getAccessToken(oAuth2Client, callback) {
+  async getAccessToken(oAuth2Client) {
     const authUrl = oAuth2Client.generateAuthUrl({
       access_type: 'offline',
       scope: this.SCOPES,
@@ -46,6 +107,7 @@ export class GdriveService {
       input: process.stdin,
       output: process.stdout,
     });
+
     rl.question('Enter the code from that page here: ', code => {
       rl.close();
       oAuth2Client.getToken(code, (err, token) => {
@@ -56,30 +118,43 @@ export class GdriveService {
           if (err) return console.error(err);
           console.log('Token stored to', this.TOKEN_PATH);
         });
-        callback(oAuth2Client);
+        return oAuth2Client;
       });
     });
   }
 
-  listFiles(auth) {
-    const drive = google.drive({ version: 'v3', auth });
-    drive.files.list(
-      {
-        pageSize: 10,
-        fields: 'nextPageToken, files(id, name)',
-      },
-      (err, res) => {
-        if (err) return console.log('The API returned an error: ' + err);
-        const files = res.data.files;
-        if (files.length) {
-          console.log('Files:');
-          files.map(file => {
-            console.log(`${file.name} (${file.id})`);
-          });
-        } else {
-          console.log('No files found.');
-        }
-      },
-    );
+  async listFilesOrFolders(auth, file = true) {
+    try {
+      const drive = google.drive({ version: 'v3', auth });
+      const fileParams = {
+        pageSize: 100,
+        spaces: 'drive',
+        fields: 'files(id,name),nextPageToken',
+      };
+      const folderParams = {
+        q: 'mimeType="application/vnd.google-apps.folder"',
+        pageSize: 100,
+        spaces: 'drive',
+        fields: 'files(id,name),nextPageToken',
+      };
+      const driveParams = file ? fileParams : folderParams;
+      const res = await drive.files.list(driveParams);
+      const files = res.data.files;
+      return files;
+    } catch (error) {
+      console.log('error', error);
+      return [];
+    }
+    // const response = await drive.files.list(driveParams, (err, res) => {
+    //   if (err) return console.log('The API returned an error: ' + err);
+    //   const files = res.data.files;
+    //   if (files.length > 1) {
+    //     // console.log('files', files);
+    //     return files;
+    //   } else {
+    //     console.log('No files found.');
+    //   }
+    // });
+    // return response;
   }
 }
