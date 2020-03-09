@@ -12,10 +12,12 @@ export class TransmissionService {
 
   async processTorrents() {
     const torrents = await this.getTorrentDetails();
+    console.log('torrents', torrents);
     const audiobooks = await this.filterByDirectory(
       torrents,
       process.env.TRANSMISSION_DOWNLOAD_DIRECTORY,
     );
+    if (audiobooks.length < 1) return [];
     console.log('audiobooks', audiobooks);
     const movedTorrents = await this.moveTorrent(audiobooks);
     console.log('Successfully moved torrents', movedTorrents);
@@ -50,12 +52,13 @@ export class TransmissionService {
 
     if (details.torrents.length > 0) {
       return details.torrents.map(torrent => {
+        const percentComplete = torrent.percentDone * 100;
         return {
           id: torrent.id,
           name: torrent.name,
           directory: torrent.downloadDir,
-          precentComplete: torrent.percentDone * 100,
-          status: this.getStatusType(torrent.status),
+          precentComplete: percentComplete,
+          status: this.getStatusType(torrent.status, percentComplete),
         };
       });
     }
@@ -141,8 +144,11 @@ export class TransmissionService {
     });
   };
 
-  getStatusType(type) {
-    return this.transmissionClient().statusArray[type];
+  getStatusType(type, percentComplete) {
+    const status = this.transmissionClient().statusArray[type];
+    return percentComplete === 100 && status === 'STOPPED'
+      ? 'COMPLETED'
+      : status;
   }
 
   public transmissionClient() {
