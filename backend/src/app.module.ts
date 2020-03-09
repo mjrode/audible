@@ -3,11 +3,15 @@ import { AudioBayModule } from './audiobay/audiobay.module';
 import { TransmissionModule } from './transmission/transmission.module';
 import { GdriveModule } from './gdrive/gdrive.module';
 import { EventEmitterModule } from './utils/event-emitter.module';
-import { EventEmitterService } from './utils/event-emitter.service';
 import { EventEmitter } from 'events';
 import { InjectEventEmitter } from './utils/event-emitter.decorator';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { typeOrmConfig } from './config/typeorm.config';
+import { UserModule } from './users/user.module';
 @Module({
   imports: [
+    TypeOrmModule.forRoot(typeOrmConfig),
+    UserModule,
     AudioBayModule,
     TransmissionModule,
     GdriveModule,

@@ -12,7 +12,7 @@ export class TransmissionService {
 
   async processTorrents() {
     const torrents = await this.getTorrentDetails();
-    console.log('torrents', torrents);
+    if (torrents.length > 1) console.log('torrents', torrents);
     const audiobooks = await this.filterByDirectory(
       torrents,
       process.env.TRANSMISSION_DOWNLOAD_DIRECTORY,
