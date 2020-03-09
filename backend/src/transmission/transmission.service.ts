@@ -1,19 +1,45 @@
 import { Injectable } from '@nestjs/common';
 import transmissionConfig from './transmission.config';
 import * as Transmission from 'transmission';
-
+import { EventEmitter } from 'events';
+import { InjectEventEmitter } from '../utils/event-emitter.decorator';
+import { TransmissionPoller } from './transmission.poller';
+import * as dotenv from 'dotenv';
+dotenv.config();
 @Injectable()
 export class TransmissionService {
+  constructor(@InjectEventEmitter() private readonly emitter: EventEmitter) {}
+
+  async processTorrents() {
+    const torrents = await this.getTorrentDetails();
+    const audiobooks = await this.filterByDirectory(
+      torrents,
+      process.env.TRANSMISSION_DOWNLOAD_DIRECTORY,
+    );
+    console.log('audiobooks', audiobooks);
+    const movedTorrents = await this.moveTorrent(audiobooks);
+    console.log('Successfully moved torrents', movedTorrents);
+
+    const removedTorrents = await this.removeTorrent(audiobooks);
+    console.log('Removed torrent files', removedTorrents);
+  }
+
+  async filterByDirectory(torrents, directory) {
+    return torrents.filter(torrent => torrent.directory.includes(directory));
+  }
+
+  async findCompletedTorrents(torrents) {
+    return torrents.filter(torrent => torrent.precentComplete === 100);
+  }
   async stats(): Promise<any> {
     const stats = await this.sessionStatsPromise();
-    console.log('statss', stats);
     return stats;
   }
 
   async addTorrent(hash): Promise<any> {
     const urlFromHash = `magnet:?xt=urn:btih:${hash}`;
     const newTorrent: any = await this.addTorrentPromise(urlFromHash, {
-      'download-dir': '/books/incomplete',
+      'download-dir': `${process.env.TRANSMISSION_DOWNLOAD_DIRECTORY}/incomplete`,
     });
     console.log('newTorrent', newTorrent);
     return newTorrent;
@@ -23,15 +49,18 @@ export class TransmissionService {
     const details: any = await this.getTorrentDetailsPromise();
 
     if (details.torrents.length > 0) {
-      details.torrents.forEach(torrent => {
-        console.log('Id =', torrent.id);
-        console.log('Name = ' + torrent.name);
-        console.log('Completed = ' + torrent.percentDone * 100);
-        console.log('Status = ' + this.getStatusType(torrent.status));
+      return details.torrents.map(torrent => {
+        return {
+          id: torrent.id,
+          name: torrent.name,
+          directory: torrent.downloadDir,
+          precentComplete: torrent.percentDone * 100,
+          status: this.getStatusType(torrent.status),
+        };
       });
     }
 
-    return details;
+    return [];
   }
 
   async getTorrentDetail(id): Promise<any> {
@@ -39,9 +68,28 @@ export class TransmissionService {
     return details;
   }
 
-  async moveTorrent(id, location = '/books/complete'): Promise<any> {
-    const torrent = await this.moveTorrentPromise(id, location);
-    return torrent;
+  async moveTorrent(
+    audiobooks,
+    location = `${process.env.TRANSMISSION_DOWNLOAD_DIRECTORY}/complete`,
+  ): Promise<any> {
+    const ids = audiobooks.map(book => book.id);
+    try {
+      const response = await this.moveTorrentPromise(ids, location);
+      return response;
+    } catch (error) {
+      console.log('error moving torrent', error);
+    }
+  }
+
+  async removeTorrent(audiobooks): Promise<any> {
+    const ids = audiobooks.map(book => book.id);
+    try {
+      console.log('Remove these ids', ids);
+      const response = await this.removeTorrentPromise(ids);
+      return response;
+    } catch (error) {
+      console.log('error moving torrent', error);
+    }
   }
 
   sessionStatsPromise = (...args) => {
@@ -56,7 +104,18 @@ export class TransmissionService {
 
   moveTorrentPromise = (...args: any) => {
     return new Promise((resolve, reject) => {
-      this.transmissionClient().move(args.id, args.location, (err, data) => {
+      const client = this.transmissionClient();
+      client.move(...args, (err, data) => {
+        if (err) return reject(err);
+        resolve(data);
+      });
+    });
+  };
+
+  removeTorrentPromise = (...args: any) => {
+    return new Promise((resolve, reject) => {
+      const client = this.transmissionClient();
+      client.remove(...args, (err, data) => {
         if (err) return reject(err);
         resolve(data);
       });

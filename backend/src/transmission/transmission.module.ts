@@ -6,12 +6,13 @@ import {
 } from '@nestjs/common';
 
 import { TransmissionController } from './transmission.controller';
-import { AuthenticationMiddleware } from '../common/authentication.middleware';
+import { AuthenticationMiddleware } from '../auth/authentication.middleware';
 import { TransmissionService } from './transmission.service';
+import { TransmissionPoller } from './transmission.poller';
 
 @Module({
   controllers: [TransmissionController],
-  providers: [TransmissionService],
+  providers: [TransmissionService, TransmissionPoller],
 })
 export class TransmissionModule implements NestModule {
   configure(consumer: MiddlewareConsumer): MiddlewareConsumer | void {

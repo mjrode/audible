@@ -1,9 +1,15 @@
 import { Controller, Get, Res, HttpStatus, Param } from '@nestjs/common';
 import { TransmissionService } from './transmission.service';
+import { InjectEventEmitter } from '../utils/event-emitter.decorator';
+import { EventEmitter } from 'events';
 
 @Controller('transmission')
 export class TransmissionController {
-  constructor(private transmissionService: TransmissionService) {}
+  constructor(
+    private transmissionService: TransmissionService,
+    @InjectEventEmitter() private readonly emitter: EventEmitter,
+  ) {}
+
   @Get('status')
   async getStatus(@Res() res) {
     const stats = await this.transmissionService.stats();

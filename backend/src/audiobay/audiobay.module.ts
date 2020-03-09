@@ -1,7 +1,7 @@
 import { Module, NestModule, MiddlewareConsumer, RequestMethod } from '@nestjs/common';
 import {  AudioBayController } from './audiobay.controller';
 import { AudioBayService } from './audiobay.service';
-import { AuthenticationMiddleware } from '../common/authentication.middleware';
+import { AuthenticationMiddleware } from '../auth/authentication.middleware';
 
 @Module({
   controllers: [AudioBayController],
