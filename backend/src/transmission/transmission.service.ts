@@ -27,7 +27,10 @@ export class TransmissionService {
   }
 
   async filterByDirectory(torrents, directory) {
-    return torrents.filter(torrent => torrent.directory.includes(directory));
+    return torrents.filter(
+      torrent =>
+        torrent.directory.includes(directory) && torrent.status === 'COMPLETED',
+    );
   }
 
   async findCompletedTorrents(torrents) {
