@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import SearchBar from 'material-ui-search-bar';
-import DisplayCard from './Card';
+import DisplayCard from '../components/Card';
 import { Grid, Snackbar, makeStyles } from '@material-ui/core';
 import SearchIcon from '@material-ui/icons/Search';
 import { RouteComponentProps, withRouter, useHistory } from 'react-router-dom';
 import auth0Client from '../utils/auth';
 import Alert from '@material-ui/lab/Alert';
+import SearchBox from 'src/components/search/Search';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -119,17 +120,11 @@ const Home: React.FC<any> = () => {
           No results were found for your search
         </Alert>
       </Snackbar>
-      <Grid container spacing={5}>
-        <Grid item xs={12}>
-          <h2>Search for Books</h2>
-          <SearchBar
-            searchIcon={<SearchIcon />}
-            value={searchTerm}
-            onChange={newValue => setSearchTerm(newValue)}
-            onRequestSearch={() => handleSearchSubmission()}
-          />
-        </Grid>
-      </Grid>
+      <SearchBox
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm}
+        handleSearchSubmission={handleSearchSubmission}
+      />
       {submitSuccess && !loading && (
         <Grid container spacing={3}>
           {results.map(result => (

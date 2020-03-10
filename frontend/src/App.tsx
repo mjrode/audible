@@ -5,7 +5,7 @@ import {
   withRouter,
   RouteComponentProps
 } from "react-router-dom";
-import Home from "./components/Home";
+import Home from "./pages/Home";
 import Callback from "./components/Callback";
 import auth0Client from "./utils/auth";
 import PrivateRoute from "./components/PrivateRoute";
