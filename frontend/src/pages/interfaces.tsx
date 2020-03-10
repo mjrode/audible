@@ -16,11 +16,3 @@ export interface IAudioBayResponseBody {
   image?: string;
   details?: string;
 }
-
-// export interface IFormState {
-//   [key: string]: any;
-//   values: IValues[];
-//   submitSuccess?: boolean;
-//   loading: boolean;
-//   results: IResults[];
-// }

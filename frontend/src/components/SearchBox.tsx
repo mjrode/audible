@@ -3,7 +3,7 @@ import { Grid } from '@material-ui/core';
 import SearchBar from 'material-ui-search-bar';
 import SearchIcon from '@material-ui/icons/Search';
 import auth0Client from 'src/utils/auth';
-import { IAudioBayResponse } from '../../pages/interfaces';
+import { IAudioBayResponse } from '../pages/Interfaces';
 const SearchBox: React.FC<any> = ({
   searchTerm,
   setSearchTerm,
@@ -13,7 +13,7 @@ const SearchBox: React.FC<any> = ({
 }) => {
   const handleSearchSubmission = async (): Promise<void> => {
 
-    
+
     const response: IAudioBayResponse | false = await submitForm();
 
     setResults(response.body);

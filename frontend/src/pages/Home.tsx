@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { withRouter } from 'react-router-dom';
-import SearchBox from 'src/components/search/SearchBox';
-import { IResults } from './interfaces';
+import SearchBox from 'src/components/SearchBox';
+import { IResults } from './Interfaces';
 import InfoAlert from '../components/InfoAlert';
 import { CardGrid } from 'src/components/CardGrid';
 
