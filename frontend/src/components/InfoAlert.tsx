@@ -3,6 +3,9 @@ import { Snackbar } from '@material-ui/core';
 import Alert from '@material-ui/lab/Alert';
 
 const InfoAlert: React.FC<any> = ({ open, setOpen, alertText }) => {
+  console.log('open', open);
+  console.log('setopen', setOpen);
+  console.log('Akert text', alertText);
   const handleClose = (event?: React.SyntheticEvent, reason?: string) => {
     if (reason === 'clickaway') {
       return;
