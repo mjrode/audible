@@ -12,8 +12,6 @@ const SearchBox: React.FC<any> = ({
   setResults,
 }) => {
   const handleSearchSubmission = async (): Promise<void> => {
-
-
     const response: IAudioBayResponse | false = await submitForm();
 
     setResults(response.body);
