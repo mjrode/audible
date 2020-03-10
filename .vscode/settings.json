@@ -1,9 +1,5 @@
 {
   "editor.formatOnSave": true,
-  "auto-close-tag.activationOnLanguage": [
-    "xml",
-    "markdown",
-    "erb",
-    "HTML (Eex)"
-  ],
+  "prettier.jsxSingleQuote": true,
+  "prettier.singleQuote": true
 }

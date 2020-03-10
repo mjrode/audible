@@ -1,17 +1,19 @@
-import * as React from "react";
-import AppBar from "@material-ui/core/AppBar";
-import { Toolbar, Button, Grid } from "@material-ui/core";
-import Typography from "@material-ui/core/Typography";
-import { Link, withRouter, RouteComponentProps } from "react-router-dom";
-import auth0Client from "../utils/auth";
-import { useHistory } from "react-router-dom";
+import * as React from 'react';
+import AppBar from '@material-ui/core/AppBar';
+import { Toolbar, Button, Grid } from '@material-ui/core';
+import Typography from '@material-ui/core/Typography';
+import { Link, withRouter, RouteComponentProps } from 'react-router-dom';
+import auth0Client from '../utils/auth';
+import { useHistory } from 'react-router-dom';
+import audiobook from '../assets/audiobook.png';
+import Avatar from '@material-ui/core/Avatar';
 
 const NavBar: React.FC<any> = () => {
   const history = useHistory();
 
   const logout = (): void => {
     auth0Client.logout();
-    history.replace("/");
+    history.replace('/');
   };
 
   return (
@@ -23,9 +25,10 @@ const NavBar: React.FC<any> = () => {
             container
           >
             <Grid item>
-              <Button component={Link} to={"/"}>
+              <Button component={Link} to={'/'}>
+                <Avatar alt="Logo" src={audiobook} />
                 <Typography variant="h4" color="inherit">
-                  Audible
+                  AudiBook
                 </Typography>
               </Button>
             </Grid>
