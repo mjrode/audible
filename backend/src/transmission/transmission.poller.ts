@@ -2,12 +2,14 @@ import { Injectable, forwardRef, Inject } from '@nestjs/common';
 import { InjectEventEmitter } from 'src/utils/event-emitter.decorator';
 import { EventEmitter } from 'events';
 import { TransmissionService } from './transmission.service';
+import { GdriveService } from '../gdrive/gdrive.service';
 @Injectable()
 export class TransmissionPoller {
   constructor(
     @InjectEventEmitter()
     private readonly emitter: EventEmitter,
     private readonly transmissionService: TransmissionService,
+    private readonly gdriveService: GdriveService,
   ) {}
 
   public async onModuleInit() {
@@ -23,6 +25,7 @@ export class TransmissionPoller {
 
   async handleCheckTorrentsEvent() {
     await this.transmissionService.processTorrents();
+    await this.gdriveService.processDownloads();
     this.pollTorrents();
   }
 }

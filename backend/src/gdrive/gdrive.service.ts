@@ -12,9 +12,31 @@ export class GdriveService {
   SCOPES = ['https://www.googleapis.com/auth/drive'];
   TOKEN_PATH = './token.json';
 
-  async getFiles() {
+  async processDownloads() {
+    // const directory = `${process.env.TRANSMISSION_DOWNLOAD_DIRECTORY}/complete`;
+    const directory = `/Users/michaelrode/Code/books/complete`;
+    const completedDownloads = await fs.readdirSync(directory, 'utf8');
+    console.log('Completed', completedDownloads);
+    const driveBookFolder = await this.findFolder('AudioBooks');
+    const driveBooks = await this.getFiles(driveBookFolder.id, false);
+    console.log('Drive Books', driveBooks);
+    if (completedDownloads < 1) return;
+    completedDownloads.forEach(async file => {
+      const upload = await this.uploadFile(
+        `${directory}/${file}`,
+        driveBookFolder.id,
+      );
+      console.log('UploadedFile', upload);
+
+      const removeFile = await fs.unlinkSync(`${directory}/${file}`);
+      console.log('Deleted file', removeFile);
+    });
+    console.log('completedDownloads', completedDownloads);
+  }
+
+  async getFiles(folderId = null, file = true) {
     const auth = await this.authenticateClient();
-    const files = await this.listFilesOrFolders(auth);
+    const files = await this.listFilesOrFolders(auth, file, folderId);
     return files;
   }
 
@@ -23,7 +45,7 @@ export class GdriveService {
     const files = await this.listFilesOrFolders(auth, false);
     const folder = files.filter(file => file.name === name);
     console.log('findFolder', folder);
-    return folder;
+    return folder[0];
   }
 
   async uploadFile(fileName, folderId = '') {
@@ -123,7 +145,7 @@ export class GdriveService {
     });
   }
 
-  async listFilesOrFolders(auth, file = true) {
+  async listFilesOrFolders(auth, file = true, folderId = null) {
     try {
       const drive = google.drive({ version: 'v3', auth });
       const fileParams = {
@@ -131,12 +153,17 @@ export class GdriveService {
         spaces: 'drive',
         fields: 'files(id,name),nextPageToken',
       };
+      const query = folderId
+        ? `mimeType="application/vnd.google-apps.folder" and "${folderId}" in parents and trashed=false`
+        : 'mimeType="application/vnd.google-apps.folder"';
+      console.log('Query', query);
       const folderParams = {
-        q: 'mimeType="application/vnd.google-apps.folder"',
+        q: query,
         pageSize: 100,
         spaces: 'drive',
         fields: 'files(id,name),nextPageToken',
       };
+      console.log('fileParams', fileParams);
       const driveParams = file ? fileParams : folderParams;
       const res = await drive.files.list(driveParams);
       const files = res.data.files;

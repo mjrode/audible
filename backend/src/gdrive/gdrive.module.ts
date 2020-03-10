@@ -5,5 +5,6 @@ import { GdriveController } from './gdrive.controller';
 @Module({
   providers: [GdriveService],
   controllers: [GdriveController],
+  exports: [GdriveService],
 })
 export class GdriveModule {}
