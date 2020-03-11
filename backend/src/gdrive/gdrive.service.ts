@@ -3,9 +3,6 @@ const fs = require('fs');
 
 const readline = require('readline');
 import { google } from 'googleapis';
-// import { drive } from 'googleapis/build/src/apis/drive';
-import { pathToFileURL } from 'url';
-import { triggerAsyncId } from 'async_hooks';
 
 @Injectable()
 export class GdriveService {
@@ -13,11 +10,11 @@ export class GdriveService {
   TOKEN_PATH = './token.json';
 
   async processDownloads() {
-    // const directory = `${process.env.TRANSMISSION_DOWNLOAD_DIRECTORY}/complete`;
-    const directory = `/Users/michaelrode/Code/books/complete`;
+    const directory = `${process.env.TRANSMISSION_DOWNLOAD_DIRECTORY}/complete`;
     const completedDownloads = await fs.readdirSync(directory, 'utf8');
     console.log('Completed', completedDownloads);
     const driveBookFolder = await this.findFolder('AudioBooks');
+    console.log('Book Folder', driveBookFolder);
     const driveBooks = await this.getFiles(driveBookFolder.id, false);
     console.log('Drive Books', driveBooks);
     if (completedDownloads < 1) return;
@@ -43,6 +40,7 @@ export class GdriveService {
   async findFolder(name: string) {
     const auth = await this.authenticateClient();
     const files = await this.listFilesOrFolders(auth, false);
+    console.log('Files', files);
     const folder = files.filter(file => file.name === name);
     console.log('findFolder', folder);
     return folder[0];
@@ -73,7 +71,7 @@ export class GdriveService {
     return res.data;
   }
 
-  async createConfig() {
+  createConfig() {
     return {
       installed: {
         client_id: process.env.GOOGLE_DRIVE_ClIENT_ID,
@@ -83,19 +81,14 @@ export class GdriveService {
         auth_provider_x509_cert_url:
           process.env.GOOGLE_DRIVE_AUTH_PROVIDER_X509_CERT_URL,
         client_secret: process.env.GOOGLE_DRIVE_CLIENT_SECRET,
-        redirect_uris: process.env.GOOGLE_DRIVE_REDIRECT_URIS,
+        redirect_uris: process.env.GOOGLE_DRIVE_REDIRECT_URIS.split(','),
       },
     };
   }
 
   async authenticateClient() {
-    const fileConfig = await fs.readFileSync(
-      '/Users/michaelrode/Code/projects/audible/backend/src/gdrive/credentials.json',
-      'utf8',
-    );
-
     // Authorize a client with credentials, then call the Google Drive API.
-    const authenticatedClient = await this.authorize(JSON.parse(fileConfig));
+    const authenticatedClient = await this.authorize(this.createConfig());
     return authenticatedClient;
   }
 
