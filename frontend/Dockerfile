@@ -5,10 +5,9 @@ FROM node:12.13-alpine
 # This is the working directory for your application
 WORKDIR /usr/src/app/frontend
 
-
 # Copy both package.json and package-lock.json to the working directory
 # Order is important
-COPY package*.json ./
+COPY package*.json tsconfig.json ./
 # Install dependencies
 RUN npm install
 # If you are building for production we would use
