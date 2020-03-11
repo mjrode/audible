@@ -12,7 +12,6 @@
     "jsx-no-lambda": false,
     "no-console": false,
     "ordered-imports": false,
-    "jsx-boolean-value": [true, "never"],
     "array-type": false,
     "variable-name": [true, "ban-keywords", "check-format", "allow-pascal-case"]
   }
