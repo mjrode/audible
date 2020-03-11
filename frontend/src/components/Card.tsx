@@ -8,11 +8,9 @@ import CardContent from '@material-ui/core/CardContent';
 import CardActions from '@material-ui/core/CardActions';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
-import BookDetails from './BookDetails';
-import auth0Client from '../utils/auth';
 import { Grid } from '@material-ui/core';
-import InfoAlert from './InfoAlert';
 import { getDetails, downloadBook } from '../api/ApiRequests';
+import InfoAlert from './InfoAlert';
 
 export interface IDownloadResponse {
   status: boolean;
@@ -81,7 +79,6 @@ const DisplayCard: React.FC<any> = ({ title, url, image, details }) => {
         </Typography>
       </CardContent>
       <CardActions disableSpacing>
-        <BookDetails url={url}></BookDetails>
         <Grid container justify="center">
           <Button
             color="primary"

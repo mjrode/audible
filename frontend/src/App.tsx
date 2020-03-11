@@ -7,7 +7,7 @@ import {
 } from "react-router-dom";
 import Home from "./pages/Home";
 import Callback from "./components/Callback";
-import auth0Client from "./utils/auth";
+import auth0Client from "./utils/Auth";
 import PrivateRoute from "./components/PrivateRoute";
 import NavBar from "./components/NavBar";
 import {

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { RouteComponentProps, withRouter } from 'react-router-dom';
-import auth0Client from '../utils/auth';
+import auth0Client from '../utils/Auth';
 
 
 class Callback extends React.Component<{} & RouteComponentProps<any>, {}> {

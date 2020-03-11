@@ -1,4 +1,4 @@
-import auth0Client from 'src/utils/auth';
+import auth0Client from 'src/utils/Auth';
 
 export const downloadBook = async infoHash => {
   try {

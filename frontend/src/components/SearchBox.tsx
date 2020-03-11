@@ -2,13 +2,12 @@ import React from 'react';
 import { Grid } from '@material-ui/core';
 import SearchBar from 'material-ui-search-bar';
 import SearchIcon from '@material-ui/icons/Search';
-import auth0Client from 'src/utils/auth';
+import auth0Client from 'src/utils/Auth';
 import { IAudioBayResponse } from '../pages/PageInterfaces';
 const SearchBox: React.FC<any> = ({
   searchTerm,
   setSearchTerm,
   setOpen,
-  setLoading,
   setResults,
 }) => {
   const handleSearchSubmission = async (): Promise<void> => {
