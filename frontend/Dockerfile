@@ -14,7 +14,7 @@ RUN npm install
 # RUN npm ci --only-production
 
 # Bundle the apps source code inside the Docker image
-COPY . /usr/src/app/frontend
+COPY . ./
 
 CMD ["npm", "start"]
 
