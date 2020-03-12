@@ -49,28 +49,34 @@ export class GdriveService {
   }
 
   async uploadFile(fileName, folderId = '') {
-    const auth = await this.authenticateClient();
-    console.log('Filename', fileName);
-    const fileSize = fs.statSync(fileName).size;
-    const drive = google.drive({ version: 'v3', auth });
-    const res = await drive.files.create(
-      {
-        requestBody: { name: fileName, parents: [folderId] },
-        media: {
-          body: fs.createReadStream(fileName),
+    try {
+      const auth = await this.authenticateClient();
+      console.log('Filename', fileName);
+
+      const fileSize = fs.statSync(fileName).size;
+      const drive = google.drive({ version: 'v3', auth });
+      const res = await drive.files.create(
+        {
+          requestBody: { name: fileName, parents: [folderId] },
+          media: {
+            body: fs.createReadStream(fileName),
+          },
         },
-      },
-      {
-        onUploadProgress: evt => {
-          const progress = (evt.bytesRead / fileSize) * 100;
-          readline.clearLine();
-          readline.cursorTo(0);
-          process.stdout.write(`${Math.round(progress)}% complete`);
+        {
+          onUploadProgress: evt => {
+            const progress = (evt.bytesRead / fileSize) * 100;
+            readline.clearLine();
+            readline.cursorTo(0);
+            process.stdout.write(`${Math.round(progress)}% complete`);
+          },
         },
-      },
-    );
-    console.log(res.data);
-    return res.data;
+      );
+      console.log(res.data);
+      return res.data;
+    } catch (error) {
+      console.log('error uploading file', error);
+      return [];
+    }
   }
 
   createConfig() {
@@ -90,6 +96,7 @@ export class GdriveService {
 
   async authenticateClient() {
     // Authorize a client with credentials, then call the Google Drive API.
+    console.log('Config', this.createConfig());
     const authenticatedClient = await this.authorize(this.createConfig());
     return authenticatedClient;
   }
