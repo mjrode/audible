@@ -3,9 +3,9 @@ version: "3.7"
 services:
   backend:
     build: ./backend
-    volumes:
-      - ./backend:/usr/src/app/backend
-      - /backend/usr/src/app/node_modules
+    # volumes:
+    # - ./backend:/usr/src/app/backend
+    # - /backend/usr/src/app/node_modules
 
     ports:
       - "52000:5000"
@@ -18,9 +18,9 @@ services:
 
   frontend:
     build: ./frontend
-    volumes:
-      - ./frontend:/usr/src/app/frontend
-      - /frontend/usr/src/app/node_modules
+    # volumes:
+    # - ./frontend:/usr/src/app/frontend
+    # - /frontend/usr/src/app/node_modules
     networks:
       - audible
     depends_on:
@@ -28,6 +28,14 @@ services:
     ports:
       - "53000:3000"
     command: npm start
+  # db:
+  #   image: postgres:9.6
+  #   restart: always
+  #   environment:
+  #     POSTGRES_USER: postgres
+  #     POSTGRES_PASSWORD: password
+  #   ports:
+  #     - 56000:5432
 networks:
   audible:
     driver: bridge
