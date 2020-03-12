@@ -38,7 +38,9 @@ export class GdriveService {
   }
 
   async findFolder(name: string) {
+    console.log('Trying to find Drive Folder', name);
     const auth = await this.authenticateClient();
+    console.log('Auth', auth);
     const files = await this.listFilesOrFolders(auth, false);
     console.log('Files', files);
     const folder = files.filter(file => file.name === name);
