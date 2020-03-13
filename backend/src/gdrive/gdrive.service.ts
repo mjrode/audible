@@ -3,21 +3,19 @@ const fs = require('fs');
 
 const readline = require('readline');
 import { google } from 'googleapis';
+import { GdriveauthService } from './gdriveauth.service';
 
-interface GoogleConfig {
-  client_id: string;
-  client_secret: string;
-  redirect_uris: string[];
-}
 @Injectable()
 export class GdriveService {
+  constructor(private gdriveauthService: GdriveauthService) {}
   SCOPES = ['https://www.googleapis.com/auth/drive'];
   TOKEN_PATH = './token.json';
 
   async processDownloads() {
-    console.log('Auth Token', process.env.GOOGLE_AUTH_ACCESS_TOKEN);
-    const creds = await this.setCredentials();
-    console.log('Creds', JSON.stringify(creds));
+    if (process.env.GOOGLE_AUTH_ACCESS_TOKEN) {
+      const res = await this.gdriveauthService.setCredentials();
+      console.log('Red', res);
+    }
     const directory = `${process.env.TRANSMISSION_DOWNLOAD_DIRECTORY}/complete`;
     const completedDownloads = await fs.readdirSync(directory, 'utf8');
     // console.log('Completed', completedDownloads);
@@ -86,54 +84,6 @@ export class GdriveService {
       console.log('error uploading file', error);
       return [];
     }
-  }
-
-  defaultScope = [['https://www.googleapis.com/auth/drive']];
-
-  googleConfig: GoogleConfig = {
-    client_id: process.env.GOOGLE_DRIVE_ClIENT_ID,
-    client_secret: process.env.GOOGLE_DRIVE_CLIENT_SECRET,
-    redirect_uris: process.env.GOOGLE_DRIVE_REDIRECT_URIS.split(','),
-  };
-
-  createOAuthGoogleClient() {
-    console.log('Google Config', this.googleConfig.redirect_uris[0]);
-    const client = new google.auth.OAuth2(
-      this.googleConfig.client_id,
-      this.googleConfig.client_secret,
-      this.googleConfig.redirect_uris[0],
-    );
-    google.options({ auth: client });
-    return client;
-  }
-
-  getConnectionUrl(auth) {
-    return auth.generateAuthUrl({
-      access_type: 'offline',
-      prompt: 'consent',
-      scope: this.defaultScope,
-    });
-  }
-
-  urlForRequestToken() {
-    const oAuthClient = this.createOAuthGoogleClient();
-    const auth = oAuthClient;
-    const url = this.getConnectionUrl(auth);
-    return url;
-  }
-
-  async setCredentials() {
-    if (!process.env.GOOGLE_AUTH_ACCESS_TOKEN)
-      return 'GOOGLE_AUTH_ACCESS_TOKEN not set';
-    const urlCreds = this.createOAuthGoogleClient();
-    console.log(urlCreds);
-    const oAuthClient = urlCreds;
-    const decodeToken = decodeURIComponent(
-      process.env.GOOGLE_AUTH_ACCESS_TOKEN,
-    );
-    console.log('Decode Token', decodeToken);
-    const token = await oAuthClient.getToken(decodeToken);
-    console.log('Token', token);
   }
 
   createConfig() {

@@ -51,6 +51,7 @@
     "fast-memoize": "^2.5.2",
     "googleapis": "^39.2.0",
     "jwks-rsa": "^1.7.0",
+    "open": "^7.0.3",
     "passport": "^0.4.1",
     "passport-jwt": "^4.0.0",
     "passport-local": "^1.0.0",

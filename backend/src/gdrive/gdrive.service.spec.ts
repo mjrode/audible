@@ -10,15 +10,7 @@ Polly.register(NodeHttpAdapter);
 Polly.register(FSPersister);
 
 describe('GdriveService', () => {
-  setupPolly({
-    adapters: ['node-http'],
-    persister: 'fs',
-    persisterOptions: {
-      fs: {
-        recordingsDir: path.resolve(__dirname, '../../test/__recordings__'),
-      },
-    },
-  });
+  
 
   let service: GdriveService;
 

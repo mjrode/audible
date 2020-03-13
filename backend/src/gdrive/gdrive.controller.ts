@@ -2,10 +2,14 @@ import { Controller, Get, Res, HttpStatus, Param } from '@nestjs/common';
 import { GdriveService } from './gdrive.service';
 import * as url from 'url';
 import { pathToFileURL } from 'url';
+import { GdriveauthService } from './gdriveauth.service';
 
 @Controller('gdrive')
 export class GdriveController {
-  constructor(private gdriveService: GdriveService) {}
+  constructor(
+    private gdriveService: GdriveService,
+    private gdriveauthService: GdriveauthService,
+  ) {}
 
   @Get('files')
   async getFiles(@Res() res) {
@@ -15,7 +19,7 @@ export class GdriveController {
 
   @Get('auth')
   async getAuthUrl(@Res() res) {
-    const response = await this.gdriveService.urlForRequestToken();
+    const response = await this.gdriveauthService.urlForValidationCode();
     return res.status(HttpStatus.OK).json(response);
   }
 
