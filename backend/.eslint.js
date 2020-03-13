@@ -10,11 +10,8 @@ module.exports = {
   },
   plugins: ['@typescript-eslint', 'prettier', 'jest'],
   extends: [
-    'airbnb-typescript/base',
-    'prettier/@typescript-eslint',
     'plugin:prettier/recommended',
     'plugin:@typescript-eslint/eslint-recommended',
-    'plugin:@typescript-eslint/recommended',
     'plugin:@typescript-eslint/recommended-requiring-type-checking',
     'plugin:jest/recommended',
   ],

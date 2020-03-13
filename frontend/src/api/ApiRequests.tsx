@@ -7,7 +7,6 @@ export const downloadBook = async infoHash => {
       headers: new Headers({
         'Content-Type': 'application/json',
         Accept: 'application/json',
-        authorization: `Bearer ${auth0Client.getIdToken()}`,
       }),
     });
     const json = await response.json();
@@ -28,12 +27,45 @@ export const getDetails = async url => {
         headers: new Headers({
           'Content-Type': 'application/json',
           Accept: 'application/json',
-          authorization: `Bearer ${auth0Client.getIdToken()}`,
         }),
       },
     );
     const json = await response.json();
     return json[0];
+  } catch (ex) {
+    return false;
+  }
+};
+
+export const getGoogleAuthUrl = async () => {
+  try {
+    const response = await fetch(`/gdrive/auth`, {
+      method: 'get',
+      headers: new Headers({
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      }),
+    });
+    const json = await response.json();
+    return json;
+  } catch (ex) {
+    return false;
+  }
+};
+
+export const setGoogleAuthToken = async token => {
+  console.log('Token', token);
+  try {
+    const response = await fetch(`/gdrive/${token}`, {
+      method: 'get',
+      headers: new Headers({
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      }),
+    });
+    const json = await response.json();
+    console.log('authResponse', json);
+    return json;
   } catch (ex) {
     return false;
   }

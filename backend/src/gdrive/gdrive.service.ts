@@ -4,19 +4,28 @@ const fs = require('fs');
 const readline = require('readline');
 import { google } from 'googleapis';
 
+interface GoogleConfig {
+  client_id: string;
+  client_secret: string;
+  redirect_uris: string[];
+}
 @Injectable()
 export class GdriveService {
   SCOPES = ['https://www.googleapis.com/auth/drive'];
   TOKEN_PATH = './token.json';
 
   async processDownloads() {
+    console.log('Auth Token', process.env.GOOGLE_AUTH_ACCESS_TOKEN);
+    const creds = await this.setCredentials();
+    console.log('Creds', JSON.stringify(creds));
     const directory = `${process.env.TRANSMISSION_DOWNLOAD_DIRECTORY}/complete`;
     const completedDownloads = await fs.readdirSync(directory, 'utf8');
-    console.log('Completed', completedDownloads);
+    // console.log('Completed', completedDownloads);
     const driveBookFolder = await this.findFolder('AudioBooks');
-    console.log('Book Folder', driveBookFolder);
-    const driveBooks = await this.getFiles(driveBookFolder.id, false);
-    console.log('Drive Books', driveBooks);
+    // console.log('Book Folder', driveBookFolder);
+    // const driveBooks = await this.getFiles(driveBookFolder.id, false);
+    // console.log('Drive Books', driveBooks);
+    console.log('Comp', completedDownloads);
     if (completedDownloads < 1) return;
     completedDownloads.forEach(async file => {
       const upload = await this.uploadFile(
@@ -38,20 +47,20 @@ export class GdriveService {
   }
 
   async findFolder(name: string) {
-    console.log('Trying to find Drive Folder', name);
+    // console.log('Trying to find Drive Folder', name);
     const auth = await this.authenticateClient();
-    console.log('Auth', auth);
+    // console.log('Auth', auth);
     const files = await this.listFilesOrFolders(auth, false);
-    console.log('Files', files);
+    // console.log('Files', files);
     const folder = files.filter(file => file.name === name);
-    console.log('findFolder', folder);
+    // console.log('findFolder', folder);
     return folder[0];
   }
 
   async uploadFile(fileName, folderId = '') {
     try {
       const auth = await this.authenticateClient();
-      console.log('Filename', fileName);
+      // console.log('Filename', fileName);
 
       const fileSize = fs.statSync(fileName).size;
       const drive = google.drive({ version: 'v3', auth });
@@ -71,12 +80,60 @@ export class GdriveService {
           },
         },
       );
-      console.log(res.data);
+      // console.log(res.data);
       return res.data;
     } catch (error) {
       console.log('error uploading file', error);
       return [];
     }
+  }
+
+  defaultScope = [['https://www.googleapis.com/auth/drive']];
+
+  googleConfig: GoogleConfig = {
+    client_id: process.env.GOOGLE_DRIVE_ClIENT_ID,
+    client_secret: process.env.GOOGLE_DRIVE_CLIENT_SECRET,
+    redirect_uris: process.env.GOOGLE_DRIVE_REDIRECT_URIS.split(','),
+  };
+
+  createOAuthGoogleClient() {
+    console.log('Google Config', this.googleConfig.redirect_uris[0]);
+    const client = new google.auth.OAuth2(
+      this.googleConfig.client_id,
+      this.googleConfig.client_secret,
+      this.googleConfig.redirect_uris[0],
+    );
+    google.options({ auth: client });
+    return client;
+  }
+
+  getConnectionUrl(auth) {
+    return auth.generateAuthUrl({
+      access_type: 'offline',
+      prompt: 'consent',
+      scope: this.defaultScope,
+    });
+  }
+
+  urlForRequestToken() {
+    const oAuthClient = this.createOAuthGoogleClient();
+    const auth = oAuthClient;
+    const url = this.getConnectionUrl(auth);
+    return url;
+  }
+
+  async setCredentials() {
+    if (!process.env.GOOGLE_AUTH_ACCESS_TOKEN)
+      return 'GOOGLE_AUTH_ACCESS_TOKEN not set';
+    const urlCreds = this.createOAuthGoogleClient();
+    console.log(urlCreds);
+    const oAuthClient = urlCreds;
+    const decodeToken = decodeURIComponent(
+      process.env.GOOGLE_AUTH_ACCESS_TOKEN,
+    );
+    console.log('Decode Token', decodeToken);
+    const token = await oAuthClient.getToken(decodeToken);
+    console.log('Token', token);
   }
 
   createConfig() {
@@ -96,7 +153,7 @@ export class GdriveService {
 
   async authenticateClient() {
     // Authorize a client with credentials, then call the Google Drive API.
-    console.log('Config', this.createConfig());
+    // console.log('Config', this.createConfig());
     const authenticatedClient = await this.authorize(this.createConfig());
     return authenticatedClient;
   }
@@ -134,8 +191,10 @@ export class GdriveService {
 
     rl.question('Enter the code from that page here: ', code => {
       rl.close();
+      console.log('Code---------', code);
       oAuth2Client.getToken(code, (err, token) => {
         if (err) return console.error('Error retrieving access token', err);
+        console.log('Token', token);
         oAuth2Client.setCredentials(token);
         // Store the token to disk for later program executions
         fs.writeFile(this.TOKEN_PATH, JSON.stringify(token), err => {
@@ -158,14 +217,13 @@ export class GdriveService {
       const query = folderId
         ? `mimeType="application/vnd.google-apps.folder" and "${folderId}" in parents and trashed=false`
         : 'mimeType="application/vnd.google-apps.folder"';
-      console.log('Query', query);
       const folderParams = {
         q: query,
         pageSize: 100,
         spaces: 'drive',
         fields: 'files(id,name),nextPageToken',
       };
-      console.log('fileParams', fileParams);
+      // console.log('fileParams', fileParams);
       const driveParams = file ? fileParams : folderParams;
       const res = await drive.files.list(driveParams);
       const files = res.data.files;
