@@ -5,6 +5,7 @@ import { IResults } from './PageInterfaces';
 import InfoAlert from '../components/InfoAlert';
 import { CardGrid } from 'src/components/CardGrid';
 import GoogleAuth from './GoogleAuth';
+import { checkIfClientIsAuthorized } from '../api/ApiRequests';
 
 const initalResultsState = () => {
   return JSON.parse(window.localStorage.getItem('results')) || [];
@@ -32,6 +33,14 @@ const Home: React.FC<any> = () => {
   const [open, setOpen] = useState(false);
   const [googleAuthToken, setGoogleAuthToken] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(results.length > 1);
+  const [authorized, setAuthorized] = useState(false);
+
+  useEffect(() => {
+    checkIfClientIsAuthorized().then(authorized => {
+      console.log('Home client auth HOME', authorized);
+      setAuthorized(authorized);
+    });
+  }, []);
 
   resetInvalidCache(results);
 
@@ -42,7 +51,8 @@ const Home: React.FC<any> = () => {
   useEffect(() => {
     window.localStorage.setItem('searchTerm', searchTerm);
   }, [searchTerm]);
-  const homePage = (
+
+  return (
     <div>
       <InfoAlert
         open={open}
@@ -60,11 +70,6 @@ const Home: React.FC<any> = () => {
       )}
     </div>
   );
-  if (!googleAuthToken) {
-    return <GoogleAuth></GoogleAuth>;
-  } else {
-    return homePage;
-  }
 };
 
 export default withRouter(Home);

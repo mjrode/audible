@@ -10,8 +10,6 @@ Polly.register(NodeHttpAdapter);
 Polly.register(FSPersister);
 
 describe('GdriveService', () => {
-  
-
   let service: GdriveService;
 
   beforeEach(async () => {

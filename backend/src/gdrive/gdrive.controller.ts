@@ -23,16 +23,24 @@ export class GdriveController {
     return res.status(HttpStatus.OK).json(response);
   }
 
-  @Get(':token')
+  @Get('validation/:token')
   async setAuthToken(@Res() res, @Param('token') token: string) {
     console.log('Token', token);
-    process.env['GOOGLE_AUTH_ACCESS_TOKEN'] = token;
+    process.env['GOOGLE_AUTH_VALIDATION_CODE'] = token;
     return res.status(HttpStatus.OK).json({ token_set: true });
   }
 
   @Get('folder/:name')
   async findFolder(@Res() res, @Param('name') name) {
     const response = await this.gdriveService.findFolder(name);
+    return res.status(HttpStatus.OK).json(response);
+  }
+
+  @Get('authorized')
+  async authorized(@Res() res) {
+    console.log('Was I aclled');
+    const response = await this.gdriveauthService.isClientIsAuthorized();
+    console.log('Response', response);
     return res.status(HttpStatus.OK).json(response);
   }
 

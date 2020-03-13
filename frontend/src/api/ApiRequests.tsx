@@ -53,10 +53,10 @@ export const getGoogleAuthUrl = async () => {
   }
 };
 
-export const setGoogleAuthToken = async token => {
+export const setBackendGoogleAuthToken = async token => {
   console.log('Token', token);
   try {
-    const response = await fetch(`/gdrive/${token}`, {
+    const response = await fetch(`/gdrive/validation/${token}`, {
       method: 'get',
       headers: new Headers({
         'Content-Type': 'application/json',
@@ -67,6 +67,25 @@ export const setGoogleAuthToken = async token => {
     console.log('authResponse', json);
     return json;
   } catch (ex) {
+    return false;
+  }
+};
+
+export const checkIfClientIsAuthorized = async () => {
+  try {
+    const response = await fetch(`/gdrive/authorized`, {
+      method: 'get',
+      headers: new Headers({
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      }),
+    });
+    console.log('Check if clien auth api frontend');
+    const json = await response.json();
+    console.log('client is authorized', json);
+    return json;
+  } catch (ex) {
+    console.log('Error', ex);
     return false;
   }
 };

@@ -4,14 +4,27 @@ import CssBaseline from '@material-ui/core/CssBaseline';
 import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
 import Container from '@material-ui/core/Container';
-import { getGoogleAuthUrl, setGoogleAuthToken } from '../api/ApiRequests';
+import {
+  getGoogleAuthUrl,
+  setBackendGoogleAuthToken,
+  checkIfClientIsAuthorized,
+} from '../api/ApiRequests';
 import Link from '@material-ui/core/Link';
 import Grid from '@material-ui/core/Grid';
+import { Redirect } from 'react-router-dom';
 const queryString = require('querystring');
 export default function GoogleAuth() {
   const [googleAuthUrl, setGoogleAuthUrl] = useState('');
   const [tokenValue, setTokenValue] = useState('');
-  const [authenticated, setAuthenticated] = useState(false);
+  const [authorized, setAuthorized] = useState(false);
+
+  useEffect(() => {
+    checkIfClientIsAuthorized().then(authorized => {
+      console.log('Authorized effect', authorized);
+      setAuthorized(authorized);
+    });
+  }, []);
+
   useEffect(() => {
     getGoogleAuthUrl().then(url => {
       setGoogleAuthUrl(url);
@@ -23,10 +36,14 @@ export default function GoogleAuth() {
 
     const encodedValue = encodeURIComponent(tokenValue);
     console.log(encodedValue);
-    const response = await setGoogleAuthToken(encodedValue);
+    const response = await setBackendGoogleAuthToken(encodedValue);
     console.log('Res', response);
-    setAuthenticated(true);
   };
+  console.log('Autorized', authorized);
+  if (authorized) {
+    return <Redirect to="/"></Redirect>;
+  }
+
   if (googleAuthUrl) {
     return (
       <Container>
