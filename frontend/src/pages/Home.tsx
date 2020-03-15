@@ -19,6 +19,7 @@ const resetInvalidCache = results => {
   try {
     results.map(result => result);
   } catch (error) {
+    console.log('Cache is invalid', error);
     window.localStorage.setItem('results', JSON.stringify([]));
   }
 };
@@ -32,15 +33,15 @@ const Home: React.FC<any> = () => {
   const [results, setResults] = useState<Array<IResults>>(initalResultsState());
   const [open, setOpen] = useState(false);
   const [googleAuthToken, setGoogleAuthToken] = useState(false);
-  const [submitSuccess, setSubmitSuccess] = useState(results.length > 1);
-  const [authorized, setAuthorized] = useState(false);
+  console.log('Results', results.length);
+  // const [authorized, setAuthorized] = useState(false);
 
-  useEffect(() => {
-    checkIfClientIsAuthorized().then(authorized => {
-      console.log('Home client auth HOME', authorized);
-      setAuthorized(authorized);
-    });
-  }, []);
+  // useEffect(() => {
+  //   checkIfClientIsAuthorized().then(authorized => {
+  //     console.log('Home client auth HOME', authorized);
+  //     setAuthorized(authorized);
+  //   });
+  // }, []);
 
   resetInvalidCache(results);
 
@@ -65,9 +66,7 @@ const Home: React.FC<any> = () => {
         setResults={setResults}
         setOpen={setOpen}
       />
-      {submitSuccess && resultsPresent(results) && (
-        <CardGrid results={results} />
-      )}
+      {resultsPresent(results) && <CardGrid results={results} />}
     </div>
   );
 };
