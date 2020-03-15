@@ -12,6 +12,7 @@
     "jsx-no-lambda": false,
     "no-console": false,
     "ordered-imports": false,
+    "no-return-await": { "severity": "warning" },
     "array-type": false,
     "variable-name": [true, "ban-keywords", "check-format", "allow-pascal-case"]
   }
