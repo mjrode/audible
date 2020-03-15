@@ -1,40 +1,34 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Grid } from '@material-ui/core';
 import SearchBar from 'material-ui-search-bar';
 import SearchIcon from '@material-ui/icons/Search';
-import auth0Client from 'src/utils/Auth';
 import { IAudioBayResponse } from '../pages/PageInterfaces';
+import { backendRequest } from '../api/ApiRequests';
+
 const SearchBox: React.FC<any> = ({
   searchTerm,
   setSearchTerm,
   setOpen,
   setResults,
 }) => {
+  const [loading, setLoading] = useState<boolean>(false);
   const handleSearchSubmission = async (): Promise<void> => {
-    const response: IAudioBayResponse | false = await submitForm();
+    setLoading(true);
+    const response = await submitForm();
 
-    setResults(response.body);
+    setResults(response.data);
+    setLoading(false);
 
-    if (response.body.length < 1) {
+    if (response.data.length < 1) {
       setOpen(true);
     }
   };
 
   const submitForm = async () => {
-    try {
-      const response = await fetch(`/audiobay/${searchTerm}`, {
-        method: 'get',
-        headers: new Headers({
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-          authorization: `Bearer ${auth0Client.getIdToken()}`,
-        }),
-      });
-      const json = await response.json();
-      return { status: response.ok, body: json };
-    } catch (err) {
-      return { status: false, body: JSON.stringify(err) };
-    }
+    const url = `/audiobay/${searchTerm}`;
+    const response = await backendRequest({ url });
+    console.log('Search Response', response);
+    return response;
   };
 
   return (

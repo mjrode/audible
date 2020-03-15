@@ -1,4 +1,46 @@
-import auth0Client from 'src/utils/Auth';
+import axios from 'axios';
+// axios.request(config)
+// axios.get(url[, config])
+// axios.delete(url[, config])
+// axios.head(url[, config])
+// axios.options(url[, config])
+// axios.post(url[, data[, config]])
+// axios.put(url[, data[, config]])
+// axios.patch(url[, data[, config]])
+
+// {
+//   // `data` is the response that was provided by the server
+//   data: {},
+
+//   // `status` is the HTTP status code from the server response
+//   status: 200,
+
+//   // `statusText` is the HTTP status message from the server response
+//   statusText: 'OK',
+
+//   // `headers` the headers that the server responded with
+//   // All header names are lower cased
+//   headers: {},
+
+//   // `config` is the config that was provided to `axios` for the request
+//   config: {},
+
+//   // `request` is the request that generated this response
+//   // It is the last ClientRequest instance in node.js (in redirects)
+//   // and an XMLHttpRequest instance the browser
+//   request: {}
+// }
+
+export const backendRequest: any = async options => {
+  const axiosOptions = {
+    url: options.url,
+    method: options.method || 'get',
+    ...(options.data && { data: options.data }),
+  };
+  console.log('Axios Options', axiosOptions);
+  const response = await axios.request(axiosOptions);
+  return response;
+};
 
 export const downloadBook = async infoHash => {
   try {
