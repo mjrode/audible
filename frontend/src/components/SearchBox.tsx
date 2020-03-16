@@ -4,6 +4,7 @@ import SearchBar from 'material-ui-search-bar';
 import SearchIcon from '@material-ui/icons/Search';
 import { IAudioBayResponse } from '../pages/PageInterfaces';
 import { backendRequest } from '../api/ApiRequests';
+import { Loading } from './Loading';
 
 const SearchBox: React.FC<any> = ({
   searchTerm,
@@ -13,6 +14,7 @@ const SearchBox: React.FC<any> = ({
 }) => {
   const [loading, setLoading] = useState<boolean>(false);
   const handleSearchSubmission = async (): Promise<void> => {
+    setResults([]);
     setLoading(true);
     const response = await submitForm();
 
@@ -32,17 +34,28 @@ const SearchBox: React.FC<any> = ({
   };
 
   return (
-    <Grid container spacing={5}>
-      <Grid item xs={12}>
-        <h2>Search for Books</h2>
-        <SearchBar
-          searchIcon={<SearchIcon />}
-          value={searchTerm}
-          onChange={newValue => setSearchTerm(newValue)}
-          onRequestSearch={() => handleSearchSubmission()}
-        />
-      </Grid>
-    </Grid>
+    <>
+      {loading && (
+        <Grid container justify="center" alignItems="center">
+          <Grid item>
+            <Loading loading={loading} />
+          </Grid>
+        </Grid>
+      )}
+      {!loading && (
+        <Grid container spacing={5}>
+          <Grid item xs={12}>
+            <h2>Search for Books</h2>
+            <SearchBar
+              searchIcon={<SearchIcon />}
+              value={searchTerm}
+              onChange={newValue => setSearchTerm(newValue)}
+              onRequestSearch={() => handleSearchSubmission()}
+            />
+          </Grid>
+        </Grid>
+      )}
+    </>
   );
 };
 

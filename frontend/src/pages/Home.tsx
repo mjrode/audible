@@ -6,6 +6,7 @@ import InfoAlert from '../components/InfoAlert';
 import { CardGrid } from 'src/components/CardGrid';
 import GoogleAuth from './GoogleAuth';
 import { checkIfClientIsAuthorized } from '../api/ApiRequests';
+import { Grid } from '@material-ui/core';
 
 const initalResultsState = () => {
   return JSON.parse(window.localStorage.getItem('results')) || [];
@@ -54,12 +55,14 @@ const Home: React.FC<any> = () => {
   }, [searchTerm]);
 
   return (
-    <div>
-      <InfoAlert
-        open={open}
-        setOpen={setOpen}
-        alertText="No results were found for your search"
-      />
+    <Grid container>
+      <Grid item>
+        <InfoAlert
+          open={open}
+          setOpen={setOpen}
+          alertText="No results were found for your search"
+        />
+      </Grid>
       <SearchBox
         searchTerm={searchTerm}
         setSearchTerm={setSearchTerm}
@@ -67,7 +70,7 @@ const Home: React.FC<any> = () => {
         setOpen={setOpen}
       />
       {resultsPresent(results) && <CardGrid results={results} />}
-    </div>
+    </Grid>
   );
 };
 

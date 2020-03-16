@@ -17,7 +17,8 @@ const InfoAlert: React.FC<any> = ({ open, setOpen, alertText }) => {
   return (
     <Snackbar
       open={open}
-      autoHideDuration={6000}
+      // autoHideDuration={6000}
+      style={{ paddingTop: '15em' }}
       onClose={handleClose}
       anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
     >

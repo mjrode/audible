@@ -1,18 +1,19 @@
 import React from 'react';
-import ClipLoader from 'react-spinners/ClipLoader';
+import { DotLoader } from 'react-spinners';
 import { css } from '@emotion/core';
 
 const override = css`
   display: block;
-  margin: 0 auto;
-  border-color: red;
+  margin-top: 10em;
+  /* border-color: #36d7b7; */
 `;
 
 export const Loading = ({ loading }) => {
+  console.log('Loading', loading);
   return (
     <div>
       <div className="sweet-loading">
-        <ClipLoader
+        <DotLoader
           css={override}
           size={150}
           color={'#123abc'}
