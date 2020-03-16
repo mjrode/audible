@@ -3,7 +3,7 @@ const fs = require('fs');
 
 const readline = require('readline');
 import { google } from 'googleapis';
-import { GdriveauthService } from './gdriveauth.service';
+import { GdriveauthService } from './auth.service';
 
 @Injectable()
 export class GdriveService {

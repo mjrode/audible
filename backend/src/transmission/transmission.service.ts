@@ -4,8 +4,6 @@ import * as Transmission from 'transmission';
 import { EventEmitter } from 'events';
 import { InjectEventEmitter } from '../utils/event-emitter.decorator';
 import { TransmissionPoller } from './transmission.poller';
-import * as dotenv from 'dotenv';
-dotenv.config();
 @Injectable()
 export class TransmissionService {
   constructor(@InjectEventEmitter() private readonly emitter: EventEmitter) {}

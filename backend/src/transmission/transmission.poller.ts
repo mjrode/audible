@@ -2,7 +2,7 @@ import { Injectable, forwardRef, Inject } from '@nestjs/common';
 import { InjectEventEmitter } from 'src/utils/event-emitter.decorator';
 import { EventEmitter } from 'events';
 import { TransmissionService } from './transmission.service';
-import { GdriveService } from '../gdrive/gdrive.service';
+import { GdriveService } from '../gdrive/api.service';
 @Injectable()
 export class TransmissionPoller {
   constructor(

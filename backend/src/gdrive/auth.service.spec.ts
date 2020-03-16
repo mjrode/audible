@@ -1,12 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { GdriveauthService } from './gdriveauth.service';
+import { GdriveauthService } from './auth.service';
 const path = require('path');
-const readline = require('readline');
 const { Polly } = require('@pollyjs/core');
 const { setupPolly } = require('setup-polly-jest');
 const NodeHttpAdapter = require('@pollyjs/adapter-node-http');
 const FSPersister = require('@pollyjs/persister-fs');
-const open = require('open');
 
 Polly.register(NodeHttpAdapter);
 Polly.register(FSPersister);
@@ -15,7 +13,7 @@ describe('GdriveauthService', () => {
   setupPolly({
     adapters: ['node-http'],
     persister: 'fs',
-    logging: true,
+    logging: false,
     persisterOptions: {
       fs: {
         recordingsDir: path.resolve(__dirname, '../../test/__recordings__'),
@@ -61,9 +59,20 @@ describe('GdriveauthService', () => {
     const validationCode =
       '4/xgFkGNSr-JecF0LtdgvCZTPxLJkn1p1HVeXNjRVYoM0CV1i-ShN_cDc';
     const tokenObject = await oAuthClient.getToken(validationCode);
-    console.log('Token Object', tokenObject);
     expect(JSON.stringify(tokenObject)).toMatch(
       /ya29.a0Adw1xeXzRkJ3d5MYJu4s8yeD7GLliCAefjlKjf_ZzyVEAYMp4r0D0uBNQxXNNJXDNsdnE8s23vp39EKD6lOBvpEbq6b2LnhhDBfPwZdLyUH5-JqM2M22qTG1GQu9vqXhGnUrqaE_49FOfpwopWDamOlw1NzPPKWvDkQ/,
     );
+  });
+
+  it('isClientAuthorized returns true when client is authorized', async () => {
+    const authorized = await service.isClientAuthorized();
+    expect(authorized).toEqual(true);
+  });
+
+  it('isClientAuthorized returns false when client is not authorized', async () => {
+    process.env.TOKEN_PATH = 'invalidpath';
+    const authorized = await service.isClientAuthorized();
+    console.log('Auth', authorized);
+    expect(authorized).toEqual(false);
   });
 });

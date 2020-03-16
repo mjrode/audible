@@ -1,8 +1,8 @@
 import { Controller, Get, Res, HttpStatus, Param } from '@nestjs/common';
-import { GdriveService } from './gdrive.service';
+import { GdriveService } from './api.service';
 import * as url from 'url';
 import { pathToFileURL } from 'url';
-import { GdriveauthService } from './gdriveauth.service';
+import { GdriveauthService } from './auth.service';
 
 @Controller('gdrive')
 export class GdriveController {
@@ -39,7 +39,7 @@ export class GdriveController {
   @Get('authorized')
   async authorized(@Res() res) {
     console.log('Was I aclled');
-    const response = await this.gdriveauthService.isClientIsAuthorized();
+    const response = await this.gdriveauthService.isClientAuthorized();
     console.log('Response', response);
     return res.status(HttpStatus.OK).json(response);
   }

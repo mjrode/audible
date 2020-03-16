@@ -1,6 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { google } from 'googleapis';
 const fs = require('fs');
+// This service is responsible for:
+// 1. Authenticate a client which can make requests to Google Drive
+// 2. Generate a url which will allow the user to authorize this app to access their gDrive account
+// 3. Provide a helper function to determine if the application has access to the current users drive account
+// TODO: Store the Auth Tokens at the database level instead of creating a file to hold them.
 
 interface GoogleConfig {
   client_id: string;
@@ -11,7 +16,6 @@ interface GoogleConfig {
 @Injectable()
 export class GdriveauthService {
   SCOPES = ['https://www.googleapis.com/auth/drive'];
-  TOKEN_PATH = './token.json';
 
   googleConfig: GoogleConfig = {
     client_id: process.env.GOOGLE_DRIVE_ClIENT_ID,
@@ -19,10 +23,8 @@ export class GdriveauthService {
     redirect_uris: process.env.GOOGLE_DRIVE_REDIRECT_URIS.split(','),
   };
 
-  async isClientIsAuthorized() {
-    console.log('Auth service check');
+  async isClientAuthorized() {
     const auth = await this.isAuthTokenSet();
-    console.log('Aauth back', auth);
     return auth;
   }
 
@@ -31,17 +33,14 @@ export class GdriveauthService {
   }
 
   async isAuthTokenSet() {
-    if (fs.existsSync(this.TOKEN_PATH)) {
-      console.log('File exists');
+    if (fs.existsSync(process.env.TOKEN_PATH)) {
       return true;
     } else {
-      console.log('File does not exist');
       return false;
     }
   }
 
   createOAuthGoogleClient() {
-    console.log('Google Config', this.googleConfig.redirect_uris[0]);
     const client = new google.auth.OAuth2(
       this.googleConfig.client_id,
       this.googleConfig.client_secret,
@@ -73,15 +72,14 @@ export class GdriveauthService {
       process.env.GOOGLE_AUTH_VALIDATION_CODE,
     );
     const fileResponse = await fs.writeFileSync(
-      this.TOKEN_PATH,
+      process.env.TOKEN_PATH,
       JSON.stringify(response.tokens),
     );
-    console.log('File Response', fileResponse);
     return response.tokens;
   }
 
   async fetchAuthTokens() {
-    const token = await fs.readFileSync(this.TOKEN_PATH, 'utf8');
+    const token = await fs.readFileSync(process.env.TOKEN_PATH, 'utf8');
     return JSON.parse(token);
   }
 

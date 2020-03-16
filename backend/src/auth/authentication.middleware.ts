@@ -3,8 +3,6 @@ import { Request, Response } from 'express';
 
 import * as jwt from 'express-jwt';
 import { expressJwtSecret } from 'jwks-rsa';
-import * as dotenv from 'dotenv';
-dotenv.config();
 
 @Injectable()
 export class AuthenticationMiddleware implements NestMiddleware {
