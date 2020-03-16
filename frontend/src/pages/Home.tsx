@@ -55,14 +55,12 @@ const Home: React.FC<any> = () => {
   }, [searchTerm]);
 
   return (
-    <Grid container>
-      <Grid item>
-        <InfoAlert
-          open={open}
-          setOpen={setOpen}
-          alertText="No results were found for your search"
-        />
-      </Grid>
+    <>
+      <InfoAlert
+        open={open}
+        setOpen={setOpen}
+        alertText="No results were found for your search"
+      />
       <SearchBox
         searchTerm={searchTerm}
         setSearchTerm={setSearchTerm}
@@ -70,7 +68,7 @@ const Home: React.FC<any> = () => {
         setOpen={setOpen}
       />
       {resultsPresent(results) && <CardGrid results={results} />}
-    </Grid>
+    </>
   );
 };
 

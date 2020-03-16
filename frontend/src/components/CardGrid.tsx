@@ -16,7 +16,13 @@ export function CardGrid(props: Props) {
   return (
     <Grid container spacing={3}>
       {results.map(result => (
-        <Grid item style={{ display: 'flex' }} key={result.title} xs={6}>
+        <Grid
+          item
+          style={{ display: 'flex' }}
+          key={result.title}
+          xs={12}
+          justify="center"
+        >
           <DisplayCard {...setDisplayCardProps(result)}></DisplayCard>
         </Grid>
       ))}
