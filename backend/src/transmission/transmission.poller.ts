@@ -24,7 +24,7 @@ export class TransmissionPoller {
   }
 
   async handleCheckTorrentsEvent() {
-    await this.transmissionService.processTorrents();
+    await this.transmissionService.moveCompletedTorrents();
     await this.gdriveService.processDownloads();
     this.pollTorrents();
   }

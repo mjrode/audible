@@ -8,20 +8,26 @@ import { TransmissionPoller } from './transmission.poller';
 export class TransmissionService {
   constructor(@InjectEventEmitter() private readonly emitter: EventEmitter) {}
 
-  async processTorrents() {
+  async moveCompletedTorrents() {
+    const completedAudiobooks = await this.completedAudioBookTorrents();
+    const movedCompletedTorrents = await this.moveTorrentToCompletedDirectory(
+      completedAudiobooks,
+    );
+    console.log('Successfully moved torrents', movedCompletedTorrents);
+
+    const removedTorrents = await this.removeTorrent(movedCompletedTorrents);
+    console.log('Removed torrent files', removedTorrents);
+  }
+
+  async completedAudioBookTorrents() {
     const torrents = await this.getTorrentDetails();
-    if (torrents.length > 1) console.log('torrents', torrents);
-    const audiobooks = await this.filterByDirectory(
+    if (torrents.length > 1) console.log('Torrent Details', torrents);
+    const completedDownloads = await this.filterByDirectory(
       torrents,
       process.env.TRANSMISSION_DOWNLOAD_DIRECTORY,
     );
-    if (audiobooks.length < 1) return [];
-    console.log('audiobooks', audiobooks);
-    const movedTorrents = await this.moveTorrent(audiobooks);
-    console.log('Successfully moved torrents', movedTorrents);
-
-    const removedTorrents = await this.removeTorrent(audiobooks);
-    console.log('Removed torrent files', removedTorrents);
+    if (completedDownloads.length < 1) return [];
+    return completedDownloads;
   }
 
   async filterByDirectory(torrents, directory) {
@@ -72,7 +78,7 @@ export class TransmissionService {
     return details;
   }
 
-  async moveTorrent(
+  async moveTorrentToCompletedDirectory(
     audiobooks,
     location = `${process.env.TRANSMISSION_DOWNLOAD_DIRECTORY}/complete`,
   ): Promise<any> {

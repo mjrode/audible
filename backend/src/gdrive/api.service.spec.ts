@@ -1,20 +1,32 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { GdriveService } from './api.service';
-const path = require('path');
+import { GdriveauthService } from './auth.service';
 
 const { Polly } = require('@pollyjs/core');
 const { setupPolly } = require('setup-polly-jest');
 const NodeHttpAdapter = require('@pollyjs/adapter-node-http');
 const FSPersister = require('@pollyjs/persister-fs');
+const path = require('path');
+
 Polly.register(NodeHttpAdapter);
 Polly.register(FSPersister);
-
 describe('GdriveService', () => {
+  setupPolly({
+    adapters: ['node-http'],
+    persister: 'fs',
+    logging: false,
+    persisterOptions: {
+      fs: {
+        recordingsDir: path.resolve(__dirname, '../../test/__recordings__'),
+      },
+    },
+  });
+
   let service: GdriveService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [GdriveService],
+      providers: [GdriveService, GdriveauthService],
     }).compile();
 
     service = module.get<GdriveService>(GdriveService);
@@ -34,12 +46,5 @@ describe('GdriveService', () => {
     ];
     expect(files).toEqual(expect.arrayContaining(partialResponse));
     expect(files.length).toEqual(100);
-  });
-
-  it('Should return a url for the client to authenticate google drive', async () => {
-    const url = await service.urlForRequestToken();
-    const googleUrl =
-      'https://accounts.google.com/o/oauth2/v2/auth?access_type=offline&prompt=consent&scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fdrive&response_type=code&client_id=780470202475-k4t146ff6bopjgekimobn82v6haqiv7f.apps.googleusercontent.com&redirect_uri=urn%3Aietf%3Awg%3Aoauth%3A2.0%3Aoob';
-    expect(url).toEqual(googleUrl);
   });
 });

@@ -14,16 +14,21 @@ export class GdriveService {
     await this.gdriveauthService.authorizedClient();
   }
 
+  // Called by the transmission poller
+  // Checks if transmission
   async processDownloads() {
     const directory = `${process.env.TRANSMISSION_DOWNLOAD_DIRECTORY}/complete`;
-    const completedDownloads = await fs.readdirSync(directory, 'utf8');
-    // console.log('Completed', completedDownloads);
+    const completedTransmissionDownloads = await fs.readdirSync(
+      directory,
+      'utf8',
+    );
+    console.log('Completed', completedTransmissionDownloads);
     const driveBookFolder = await this.findFolder('AudioBooks');
-    // console.log('Book Folder', driveBookFolder);
+    console.log('Book Folder', driveBookFolder);
     const driveBooks = await this.getFiles(driveBookFolder.id, false);
     // console.log('Drive Books', driveBooks);
-    if (completedDownloads < 1) return;
-    completedDownloads.forEach(async file => {
+    if (completedTransmissionDownloads < 1) return;
+    completedTransmissionDownloads.forEach(async file => {
       const upload = await this.uploadFile(
         `${directory}/${file}`,
         driveBookFolder.id,
@@ -33,7 +38,10 @@ export class GdriveService {
       const removeFile = await fs.unlinkSync(`${directory}/${file}`);
       console.log('Deleted file', removeFile);
     });
-    console.log('completedDownloads', completedDownloads);
+    console.log(
+      'completedTransmissionDownloads',
+      completedTransmissionDownloads,
+    );
   }
 
   async getFiles(folderId = null, file = true) {
