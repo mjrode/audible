@@ -10,13 +10,15 @@ export class TransmissionService {
 
   async moveCompletedTorrents() {
     const completedAudiobooks = await this.completedAudioBookTorrents();
-    const movedCompletedTorrents = await this.moveTorrentToCompletedDirectory(
-      completedAudiobooks,
-    );
-    console.log('Successfully moved torrents', movedCompletedTorrents);
+    if (completedAudiobooks) {
+      const movedCompletedTorrents = await this.moveTorrentToCompletedDirectory(
+        completedAudiobooks,
+      );
+      console.log('Successfully moved torrents', movedCompletedTorrents);
 
-    const removedTorrents = await this.removeTorrent(movedCompletedTorrents);
-    console.log('Removed torrent files', removedTorrents);
+      const removedTorrents = await this.removeTorrent(movedCompletedTorrents);
+      console.log('Removed torrent files', removedTorrents);
+    }
   }
 
   async completedAudioBookTorrents() {
@@ -26,7 +28,7 @@ export class TransmissionService {
       torrents,
       process.env.TRANSMISSION_DOWNLOAD_DIRECTORY,
     );
-    if (completedDownloads.length < 1) return [];
+    if (completedDownloads.length < 1) return;
     return completedDownloads;
   }
 
@@ -47,6 +49,7 @@ export class TransmissionService {
 
   async addTorrent(hash): Promise<any> {
     const urlFromHash = `magnet:?xt=urn:btih:${hash}`;
+    console.log('Trying to add torrent', hash);
     const newTorrent: any = await this.addTorrentPromise(urlFromHash, {
       'download-dir': `${process.env.TRANSMISSION_DOWNLOAD_DIRECTORY}/incomplete`,
     });
@@ -82,6 +85,12 @@ export class TransmissionService {
     audiobooks,
     location = `${process.env.TRANSMISSION_DOWNLOAD_DIRECTORY}/complete`,
   ): Promise<any> {
+    console.log('Audibooks in move torrent', audiobooks);
+    if (audiobooks.length < 1) {
+      console.log('No completed downloads to move');
+      return [];
+    }
+    console.log('Audio books', audiobooks);
     const ids = audiobooks.map(book => book.id);
     try {
       const response = await this.moveTorrentPromise(ids, location);
@@ -92,6 +101,7 @@ export class TransmissionService {
   }
 
   async removeTorrent(audiobooks): Promise<any> {
+    console.log('Audibooks in remove torrent', audiobooks);
     const ids = audiobooks.map(book => book.id);
     try {
       console.log('Remove these ids', ids);

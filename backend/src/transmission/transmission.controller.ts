@@ -30,7 +30,7 @@ export class TransmissionController {
 
   @Get('move/:id')
   async move(@Res() res, @Param('id') id) {
-    const response = await this.transmissionService.moveTorrent(id);
+    const response = await this.transmissionService.moveCompletedTorrents();
     return res.status(HttpStatus.OK).json(response);
   }
 
