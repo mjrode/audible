@@ -91,7 +91,7 @@ export class TransmissionService {
       console.log('No completed downloads to move');
       return [];
     }
-    console.log('Audio books', audiobooks);
+    console.log('Audio books updated', audiobooks);
     const ids = audiobooks.map(book => book.id);
     try {
       const response = await this.moveTorrentPromise(ids, location);
