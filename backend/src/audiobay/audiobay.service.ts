@@ -56,19 +56,19 @@ export class AudioBayService {
 
         return { title, url, image, details };
       });
+      let pageCount;
+      if (results.toArray().length > 1) {
+        pageCount = $('.wp-pagenavi a')
+          .last()
+          .attr('href')
+          .match(/\d+/)[0];
+      } else {
+        pageCount = 0;
+      }
 
-      const pages =
-        results.toArray().length > 1
-          ? $('.wp-pagenavi a')
-              .last()
-              .attr('href')
-          : 0;
-
-      const pageCount = pages.match(/\d+/)[0];
       return { results, pageCount };
     } catch (error) {
       console.log('Error', error);
-      // console.log('Error', `Error fetching ${url}`);
       return [];
     }
   }
