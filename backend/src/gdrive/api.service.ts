@@ -9,7 +9,7 @@ const readline = require('readline');
 import { google } from 'googleapis';
 import { GdriveAuthService } from './auth.service';
 
-@Injectable({ scope: Scope.REQUEST })
+@Injectable()
 export class GdriveService {
   constructor(private gdriveAuthService: GdriveAuthService) {}
   directory = `${process.env.TRANSMISSION_DOWNLOAD_DIRECTORY}/complete`;

@@ -15,6 +15,7 @@ export class TransmissionPoller {
   ) {}
 
   public async onModuleInit() {
+    console.log('Polling module initiated');
     this.emitter.on(
       'check-torrents',
       async () => await this.handleCheckTorrentsEvent(),

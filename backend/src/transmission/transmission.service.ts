@@ -5,12 +5,17 @@ import * as Transmission from 'transmission';
 import { EventEmitter } from 'events';
 import { InjectEventEmitter } from '../utils/event-emitter.decorator';
 import * as path from 'path';
+import { TransmissionPoller } from './transmission.poller';
 @Injectable()
 export class TransmissionService {
   constructor(@InjectEventEmitter() private readonly emitter: EventEmitter) {}
 
   async moveCompletedTorrents() {
     const completedAudiobooks = await this.completedAudioBookTorrents();
+    console.log(
+      `TransmissionService -> moveCompletedTorrents -> completedAudiobooks`,
+      completedAudiobooks,
+    );
     if (completedAudiobooks) {
       await this.moveTorrentToCompletedDirectory(completedAudiobooks);
 
@@ -21,20 +26,28 @@ export class TransmissionService {
 
   async completedAudioBookTorrents() {
     const torrents = await this.getTorrentDetails();
-    if (torrents.length > 1) console.log('Torrent Details', torrents);
+    console.log(
+      `TransmissionService -> completedAudioBookTorrents -> torrents`,
+      torrents,
+    );
     const completedDownloads = await this.filterByDirectory(
       torrents,
-      this.transmissionDownloadDirectory(),
+      this.transmissionDownloadDirectory() + '/incomplete',
     );
-    if (completedDownloads.length < 1) return;
+    console.log(
+      `TransmissionService -> completedAudioBookTorrents -> completedDownloads`,
+      completedDownloads,
+    );
+
     return completedDownloads;
   }
 
   async filterByDirectory(torrents, directory) {
-    return torrents.filter(
-      torrent =>
-        torrent.directory.includes(directory) && torrent.status === 'COMPLETED',
-    );
+    return torrents.filter(torrent => {
+      return (
+        torrent.directory.includes(directory) && torrent.percentComplete === 100
+      );
+    });
   }
 
   async findCompletedTorrents(torrents) {
@@ -184,11 +197,6 @@ export class TransmissionService {
 
   public transmissionClient() {
     const config = transmissionConfig();
-    const transmission = new Transmission(config);
-    console.log(
-      `TransmissionService -> transmissionClient -> transmission`,
-      transmission,
-    );
-    return transmission;
+    return new Transmission(config);
   }
 }

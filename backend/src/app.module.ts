@@ -20,6 +20,7 @@ export class AppModule {
   constructor(@InjectEventEmitter() private readonly emitter: EventEmitter) {}
   public async onModuleInit() {
     requestResponseLogger();
+    console.log('Emitting event');
     this.emitter.emit('check-torrents');
   }
 }
