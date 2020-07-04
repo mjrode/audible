@@ -1,0 +1,4 @@
+curl -X POST --data-urlencode "payload={\"user\": \"#mike\", \"username\": \"Docker Update Bot\", \"text\": \"The following containers were updated and restarted: .\", \"icon_emoji\": \":whale:\"}" https://hooks.slack.com/services/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
+
+
+

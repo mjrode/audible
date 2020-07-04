@@ -2,13 +2,13 @@ import { Controller, Get, Res, HttpStatus, Param } from '@nestjs/common';
 import { GdriveService } from './api.service';
 import * as url from 'url';
 import { pathToFileURL } from 'url';
-import { GdriveauthService } from './auth.service';
+import { GdriveAuthService } from './auth.service';
 
 @Controller('gdrive')
 export class GdriveController {
   constructor(
     private gdriveService: GdriveService,
-    private gdriveauthService: GdriveauthService,
+    private gdriveAuthService: GdriveAuthService,
   ) {}
 
   @Get('files')
@@ -17,17 +17,27 @@ export class GdriveController {
     return res.status(HttpStatus.OK).json(response);
   }
 
-  @Get('auth')
+  @Get('authorize_credentials')
   async getAuthUrl(@Res() res) {
-    const response = await this.gdriveauthService.urlForValidationCode();
+    const response = await this.gdriveAuthService.urlForValidationCode();
     return res.status(HttpStatus.OK).json(response);
   }
 
   @Get('validation/:token')
   async setAuthToken(@Res() res, @Param('token') token: string) {
-    console.log('Token', token);
-    process.env['GOOGLE_AUTH_VALIDATION_CODE'] = token;
-    return res.status(HttpStatus.OK).json({ token_set: true });
+    const response = await this.gdriveAuthService.generateTokensAndWriteToFile(
+      token,
+    );
+    console.log(`GdriveController -> setAuthToken -> response`, response);
+    if (response.status === HttpStatus.OK) {
+      return res.status(HttpStatus.OK).json({ token_set: true });
+    } else {
+      return res.status(response.status).json({
+        token_set: false,
+        error: response.error,
+        error_description: response.error_description,
+      });
+    }
   }
 
   @Get('folder/:name')
@@ -38,8 +48,7 @@ export class GdriveController {
 
   @Get('authorized')
   async authorized(@Res() res) {
-    console.log('Was I aclled');
-    const response = await this.gdriveauthService.isClientAuthorized();
+    const response = await this.gdriveAuthService.isClientAuthorized();
     console.log('Response', response);
     return res.status(HttpStatus.OK).json(response);
   }

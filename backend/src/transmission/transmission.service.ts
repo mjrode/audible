@@ -12,13 +12,10 @@ export class TransmissionService {
   async moveCompletedTorrents() {
     const completedAudiobooks = await this.completedAudioBookTorrents();
     if (completedAudiobooks) {
-      const movedCompletedTorrents = await this.moveTorrentToCompletedDirectory(
-        completedAudiobooks,
-      );
-      console.log('Successfully moved torrents', movedCompletedTorrents);
+      await this.moveTorrentToCompletedDirectory(completedAudiobooks);
 
-      const removedTorrents = await this.removeTorrent(movedCompletedTorrents);
-      console.log('Removed torrent files', removedTorrents);
+      await this.removeTorrent(completedAudiobooks);
+      console.log('Removed torrent files', completedAudiobooks);
     }
   }
 
@@ -94,8 +91,7 @@ export class TransmissionService {
     console.log('Audio books updated', audiobooks);
     const ids = audiobooks.map(book => book.id);
     try {
-      const response = await this.moveTorrentPromise(ids, location);
-      return response;
+      return this.moveTorrentPromise(ids, location);
     } catch (error) {
       console.log('error moving torrent', error);
     }
@@ -124,11 +120,13 @@ export class TransmissionService {
   };
 
   moveTorrentPromise = (...args: any) => {
+    console.log('TransmissionService -> moveTorrentPromise -> args', args);
     return new Promise((resolve, reject) => {
       const client = this.transmissionClient();
-      client.move(...args, (err, data) => {
+      return client.move(...args, (err, data) => {
         if (err) return reject(err);
-        resolve(data);
+        console.log('Data', data);
+        return resolve(data);
       });
     });
   };

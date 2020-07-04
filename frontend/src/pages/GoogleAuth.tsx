@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { useHistory } from 'react-router-dom';
+
 import Button from '@material-ui/core/Button';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import TextField from '@material-ui/core/TextField';
@@ -12,41 +14,49 @@ import {
 import Link from '@material-ui/core/Link';
 import Grid from '@material-ui/core/Grid';
 import { Redirect } from 'react-router-dom';
+import InfoAlert from '../components/InfoAlert';
 const queryString = require('querystring');
 export default function GoogleAuth() {
   const [googleAuthUrl, setGoogleAuthUrl] = useState('');
   const [tokenValue, setTokenValue] = useState('');
   const [authorized, setAuthorized] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [googleDriveError, setGoogleDriveError] = useState('');
 
   useEffect(() => {
-    checkIfClientIsAuthorized().then(authorized => {
+    checkIfClientIsAuthorized().then((authorized) => {
       console.log('Authorized effect', authorized);
       setAuthorized(authorized);
     });
   }, []);
 
   useEffect(() => {
-    getGoogleAuthUrl().then(url => {
+    getGoogleAuthUrl().then((url) => {
       setGoogleAuthUrl(url);
     });
   }, []);
 
-  const handleSubmit = async e => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     const encodedValue = encodeURIComponent(tokenValue);
     console.log(encodedValue);
     const response = await setBackendGoogleAuthToken(encodedValue);
-    console.log('Res', response);
+    console.log(`handleSubmit -> response`, response);
+
+    if (!response.token_set) {
+      setOpen(true);
+      setGoogleDriveError(`Error fetching google drive credentials:
+      ${response.error} ${response.error_description}`);
+    } else {
+      window.location.reload(true);
+    }
   };
-  console.log('Autorized', authorized);
-  if (authorized) {
-    return <Redirect to="/"></Redirect>;
-  }
 
   if (googleAuthUrl) {
     return (
       <Container>
+        <InfoAlert open={open} setOpen={setOpen} alertText={googleDriveError} />
         <Container>
           <Grid item>
             <Typography component="h1" variant="h4">
@@ -69,7 +79,7 @@ export default function GoogleAuth() {
                 variant="outlined"
                 margin="normal"
                 value={tokenValue}
-                onChange={e => setTokenValue(e.target.value)}
+                onChange={(e) => setTokenValue(e.target.value)}
                 fullWidth
                 id="auth-token"
                 label="Google Auth Token"

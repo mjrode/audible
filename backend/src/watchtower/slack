@@ -1,0 +1,27 @@
+results=$( cat /home/michael/docker/scripts/docker-compose-results.txt)
+slackWebHook="https://hooks.slack.com/services/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a"
+
+function sentSlack () {
+ json_template="{
+    channel:    $channel,
+    username:   $username,
+    text:       $text,
+    icon_emoji: $icon_emoji,
+    attachments: [$attachments]
+  }"
+
+  jq -n --arg user  "#mike" \
+       --arg username "Docker Update Bot" \
+       --arg text     "${results}"\
+       --arg icon_emoji "whale" \
+       --argjson attachments "${results}" "$json_template" |
+       curl -i -X POST --data-urlencode "$(</dev/stdin)"  ${slackWebHook}
+
+}
+
+sentSlack
+
+
+
+
+slack-docker --webhook=https://hooks.slack.com/services/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a

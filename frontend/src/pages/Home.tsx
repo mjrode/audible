@@ -8,41 +8,42 @@ import GoogleAuth from './GoogleAuth';
 import { checkIfClientIsAuthorized } from '../api/ApiRequests';
 import { Grid } from '@material-ui/core';
 
-const initalResultsState = () => {
+const initialResultsState = () => {
   return JSON.parse(window.localStorage.getItem('results')) || [];
 };
 
-const initalSearchTermState = () => {
+const initialSearchTermState = () => {
   return window.localStorage.getItem('searchTerm') || '';
 };
 
-const resetInvalidCache = results => {
+const resetInvalidCache = (results) => {
   try {
-    results.map(result => result);
+    results.map((result) => result);
   } catch (error) {
     console.log('Cache is invalid', error);
     window.localStorage.setItem('results', JSON.stringify([]));
   }
 };
 
-const resultsPresent = results => {
+const resultsPresent = (results) => {
   return results.length > 1;
 };
 
 const Home: React.FC<any> = () => {
-  const [searchTerm, setSearchTerm] = useState<string>(initalSearchTermState);
-  const [results, setResults] = useState<Array<IResults>>(initalResultsState());
+  const [searchTerm, setSearchTerm] = useState<string>(initialSearchTermState);
+  const [results, setResults] = useState<Array<IResults>>(
+    initialResultsState(),
+  );
   const [open, setOpen] = useState(false);
-  const [googleAuthToken, setGoogleAuthToken] = useState(false);
   console.log('Results', results.length);
-  // const [authorized, setAuthorized] = useState(false);
+  const [authorized, setAuthorized] = useState(false);
 
-  // useEffect(() => {
-  //   checkIfClientIsAuthorized().then(authorized => {
-  //     console.log('Home client auth HOME', authorized);
-  //     setAuthorized(authorized);
-  //   });
-  // }, []);
+  useEffect(() => {
+    checkIfClientIsAuthorized().then((authorized) => {
+      console.log('Home client auth HOME', authorized);
+      setAuthorized(authorized);
+    });
+  }, [authorized]);
 
   resetInvalidCache(results);
 
@@ -54,7 +55,7 @@ const Home: React.FC<any> = () => {
     window.localStorage.setItem('searchTerm', searchTerm);
   }, [searchTerm]);
 
-  return (
+  const homePage = (
     <>
       <InfoAlert
         open={open}
@@ -70,6 +71,11 @@ const Home: React.FC<any> = () => {
       {resultsPresent(results) && <CardGrid results={results} />}
     </>
   );
+  if (!authorized) {
+    return <GoogleAuth></GoogleAuth>;
+  } else {
+    return homePage;
+  }
 };
 
 export default withRouter(Home);

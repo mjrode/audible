@@ -1,37 +1,8 @@
 import axios from 'axios';
-// axios.request(config)
-// axios.get(url[, config])
-// axios.delete(url[, config])
-// axios.head(url[, config])
-// axios.options(url[, config])
-// axios.post(url[, data[, config]])
-// axios.put(url[, data[, config]])
-// axios.patch(url[, data[, config]])
 
-// {
-//   // `data` is the response that was provided by the server
-//   data: {},
+export const backendRequest: any = async (options) => {
+  const res = encodeURI(options.url);
 
-//   // `status` is the HTTP status code from the server response
-//   status: 200,
-
-//   // `statusText` is the HTTP status message from the server response
-//   statusText: 'OK',
-
-//   // `headers` the headers that the server responded with
-//   // All header names are lower cased
-//   headers: {},
-
-//   // `config` is the config that was provided to `axios` for the request
-//   config: {},
-
-//   // `request` is the request that generated this response
-//   // It is the last ClientRequest instance in node.js (in redirects)
-//   // and an XMLHttpRequest instance the browser
-//   request: {}
-// }
-
-export const backendRequest: any = async options => {
   const axiosOptions = {
     url: options.url,
     method: options.method || 'get',
@@ -42,7 +13,7 @@ export const backendRequest: any = async options => {
   return response;
 };
 
-export const downloadBook = async infoHash => {
+export const downloadBook = async (infoHash) => {
   try {
     const response = await fetch(`/transmission/add/${infoHash}`, {
       method: 'get',
@@ -60,7 +31,7 @@ export const downloadBook = async infoHash => {
   }
 };
 
-export const getDetails = async url => {
+export const getDetails = async (url) => {
   try {
     const response = await fetch(
       `/audiobay/details/${encodeURIComponent(url)}`,
@@ -81,7 +52,7 @@ export const getDetails = async url => {
 
 export const getGoogleAuthUrl = async () => {
   try {
-    const response = await fetch(`/gdrive/auth`, {
+    const response = await fetch(`/gdrive/authorize_credentials`, {
       method: 'get',
       headers: new Headers({
         'Content-Type': 'application/json',
@@ -95,7 +66,7 @@ export const getGoogleAuthUrl = async () => {
   }
 };
 
-export const setBackendGoogleAuthToken = async token => {
+export const setBackendGoogleAuthToken = async (token) => {
   console.log('Token', token);
   try {
     const response = await fetch(`/gdrive/validation/${token}`, {

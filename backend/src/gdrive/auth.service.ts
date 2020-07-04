@@ -14,33 +14,41 @@ interface GoogleConfig {
 }
 
 @Injectable()
-export class GdriveauthService {
+export class GdriveAuthService {
   SCOPES = ['https://www.googleapis.com/auth/drive'];
 
   googleConfig: GoogleConfig = {
     client_id: process.env.GOOGLE_DRIVE_ClIENT_ID,
     client_secret: process.env.GOOGLE_DRIVE_CLIENT_SECRET,
-    redirect_uris: process.env.GOOGLE_DRIVE_REDIRECT_URIS.split(','),
+    redirect_uris: process.env.GOOGLE_DRIVE_REDIRECT_URIS?.split(','),
   };
 
-  async isClientAuthorized() {
-    const auth = await this.isAuthTokenSet();
-    return auth;
+  public async isClientAuthorized() {
+    const res = await fs.existsSync(process.env.GOOGLE_DRIVE_CREDENTIALS_PATH);
+    console.log(`GdriveAuthService -> isClientAuthorized -> auth`, res);
+    return res;
   }
 
-  async ensureAuthTokensAreSet() {
-    await this.setAuthTokens();
+  public urlForValidationCode(): string {
+    const oAuthClient = this.createOAuthGoogleClient();
+    const auth = oAuthClient;
+    return this.setScopedAuthUrl(auth);
   }
 
-  async isAuthTokenSet() {
-    if (fs.existsSync(process.env.TOKEN_PATH)) {
-      return true;
+  public async authorizedGoogleDriveClient() {
+    if (this.isClientAuthorized) {
+      const client = this.createOAuthGoogleClient();
+      const authTokens = await this.googleDriveCredentials();
+      await client.setCredentials(authTokens);
+      return client;
     } else {
-      return false;
+      new Error(
+        `Google Drive authorization tokens are not set in ${process.env.GOOGLE_DRIVE_CREDENTIALS_PATH}`,
+      );
     }
   }
 
-  createOAuthGoogleClient() {
+  private createOAuthGoogleClient() {
     const client = new google.auth.OAuth2(
       this.googleConfig.client_id,
       this.googleConfig.client_secret,
@@ -50,7 +58,7 @@ export class GdriveauthService {
     return client;
   }
 
-  setScopedAuthUrl(auth) {
+  private setScopedAuthUrl(auth) {
     return auth.generateAuthUrl({
       access_type: 'offline',
       prompt: 'consent',
@@ -58,43 +66,31 @@ export class GdriveauthService {
     });
   }
 
-  urlForValidationCode() {
-    const oAuthClient = this.createOAuthGoogleClient();
-    const auth = oAuthClient;
-    const url = this.setScopedAuthUrl(auth);
-    return url;
+  public async generateTokensAndWriteToFile(token: string) {
+    try {
+      const client = this.createOAuthGoogleClient();
+
+      const googleDriveCredentials = await client.getToken(token);
+
+      await fs.writeFileSync(
+        process.env.GOOGLE_DRIVE_CREDENTIALS_PATH,
+        JSON.stringify(googleDriveCredentials.tokens),
+      );
+      return { status: googleDriveCredentials.res.status };
+    } catch (error) {
+      return {
+        status: error.response.status,
+        error: error.response.data.error,
+        error_description: error.response.data.error_description,
+      };
+    }
   }
 
-  async setAuthTokens() {
-    if (!process.env.GOOGLE_AUTH_VALIDATION_CODE) return [];
-    const client = this.createOAuthGoogleClient();
-    const response = await client.getToken(
-      process.env.GOOGLE_AUTH_VALIDATION_CODE,
+  private async googleDriveCredentials() {
+    const tokens = await fs.readFileSync(
+      process.env.GOOGLE_DRIVE_CREDENTIALS_PATH,
+      'utf8',
     );
-    const fileResponse = await fs.writeFileSync(
-      process.env.TOKEN_PATH,
-      JSON.stringify(response.tokens),
-    );
-    return response.tokens;
-  }
-
-  async fetchAuthTokens() {
-    const token = await fs.readFileSync(process.env.TOKEN_PATH, 'utf8');
-    return JSON.parse(token);
-  }
-
-  async authorizedClient() {
-    const client = this.createOAuthGoogleClient();
-    const authTokens = await this.fetchAuthTokens();
-    await client.setCredentials(authTokens);
-    return client;
+    return JSON.parse(tokens);
   }
 }
-
-// Token {
-//   access_token: 'ya29.a0Adw1xeVWpHlUJn12E7lCGLX0UHclKLkEdsI1NsTah507GWdogkMkhleVnyWXMx66wbl9nCUApdL5cnRfkEvneZUKuBIn4oTGdkOJDVlQhRnwe1_PeVTwmf6tzAmTaaygomi63oghsPpuykQJahrXXMWrIRitsRFtVW4',
-//   refresh_token: '1//0fDRkWUR5stz0CgYIARAAGA8SNwF-L9IrDi5pWnil6WDmSfxE3PvXPtuDWSUNukU4oKXJrag6fwFSL-XNyi8YuSx41YRUIt-9cY0',
-//   scope: 'https://www.googleapis.com/auth/drive',
-//   token_type: 'Bearer',
-//   expiry_date: 1584087578020
-// }

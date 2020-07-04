@@ -4,8 +4,9 @@ const cheerio = require('cheerio');
 
 @Injectable()
 export class AudioBayService {
-  async query(term, page = null): Promise<any> {
+  async query(term: string, page = null): Promise<any> {
     const url = this.buildUrl(term, page);
+    console.log('AudioBayService -> url', url);
     const response: any = await this.fetchBooks(url);
     const res =
       response.length < 1
@@ -15,7 +16,7 @@ export class AudioBayService {
     return res;
   }
 
-  async bookDetails(url): Promise<any> {
+  async bookDetails(url: string): Promise<any> {
     const httpClient = axios;
     const response = await httpClient.get(url);
     const $ = cheerio.load(response.data);
@@ -35,14 +36,14 @@ export class AudioBayService {
     return results.toArray();
   }
 
-  buildUrl(term, page) {
-    if (page) {
-      return `http://audiobookbay.nl/${page}?s=${term}`;
-    } else {
-      return `http://audiobookbay.nl/?s=${term}`;
-    }
+  buildUrl(term: string, page: string) {
+    const formattedTerm = encodeURIComponent(term);
+    return page
+      ? `http://audiobookbay.nl/${page}?s=${formattedTerm}`
+      : `http://audiobookbay.nl/?s=${formattedTerm}`;
   }
-  async fetchBooks(url) {
+
+  private async fetchBooks(url) {
     try {
       const httpClient = axios;
       const response = await httpClient.get(url);
@@ -59,9 +60,9 @@ export class AudioBayService {
       let pageCount;
       if (results.toArray().length > 1) {
         pageCount = $('.wp-pagenavi a')
-          .last()
-          .attr('href')
-          .match(/\d+/)[0];
+          ?.last()
+          ?.attr('href')
+          ?.match(/\d+/)[0];
       } else {
         pageCount = 0;
       }

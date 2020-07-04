@@ -3,65 +3,73 @@ const fs = require('fs');
 
 const readline = require('readline');
 import { google } from 'googleapis';
-import { GdriveauthService } from './auth.service';
+import { GdriveAuthService } from './auth.service';
 
 @Injectable()
 export class GdriveService {
-  constructor(private gdriveauthService: GdriveauthService) {}
-
-  async authorizeGoogleClient() {
-    await this.gdriveauthService.ensureAuthTokensAreSet();
-    await this.gdriveauthService.authorizedClient();
-  }
-
+  constructor(private gdriveAuthService: GdriveAuthService) {}
+  directory = `${process.env.TRANSMISSION_DOWNLOAD_DIRECTORY}/complete`;
   // Called by the transmission poller
   // Checks if transmission
-  async processDownloads() {
-    const directory = `${process.env.TRANSMISSION_DOWNLOAD_DIRECTORY}/complete`;
+  // Uploads completed downloads to google drive
+  public async processDownloads() {
+    const completedTransmissionDownloads = await this.getCompletedTransmissionDownloads();
+    const googleDriveBookFolder = await this.findFolder('AudioBooks');
+
+    googleDriveBookFolder &&
+      completedTransmissionDownloads.forEach(async file => {
+        await this.uploadToGoogleDriveAndRemoveLocal(
+          file,
+          googleDriveBookFolder,
+        );
+      });
+  }
+  
+  private async getCompletedTransmissionDownloads() {
+    console.log(
+      `GdriveService -> processDownloads -> directory`,
+      this.directory,
+    );
+    if (!fs.existsSync(this.directory)) {
+      console.log('Directory does not exist');
+      await fs.mkdirSync(this.directory);
+    }
     const completedTransmissionDownloads = await fs.readdirSync(
-      directory,
+      this.directory,
       'utf8',
     );
-    console.log('Completed', completedTransmissionDownloads);
-    const driveBookFolder = await this.findFolder('AudioBooks');
-    console.log('Book Folder', driveBookFolder);
-    const driveBooks = await this.getFiles(driveBookFolder.id, false);
-    // console.log('Drive Books', driveBooks);
-    if (completedTransmissionDownloads < 1) return;
-    completedTransmissionDownloads.forEach(async file => {
-      const upload = await this.uploadFile(
-        `${directory}/${file}`,
-        driveBookFolder.id,
-      );
-      console.log('UploadedFile', upload);
+    console.log('Completed transmission', completedTransmissionDownloads);
+    return completedTransmissionDownloads;
+  }
 
-      const removeFile = await fs.unlinkSync(`${directory}/${file}`);
-      console.log('Deleted file', removeFile);
-    });
-    console.log(
-      'completedTransmissionDownloads',
-      completedTransmissionDownloads,
+  private async uploadToGoogleDriveAndRemoveLocal(file, googleDriveBookFolder) {
+    const upload = await this.uploadFile(
+      `${this.directory}/${file}`,
+      googleDriveBookFolder.id,
     );
+    console.log('UploadedFile', upload);
+
+    const removeFile = await fs.unlinkSync(`${this.directory}/${file}`);
+    console.log('Deleted file', removeFile);
   }
 
   async getFiles(folderId = null, file = true) {
     const files = await this.listFilesOrFolders(file, folderId);
+    console.log(`GdriveService -> getFiles -> files`, files.length);
     return files;
   }
 
   async findFolder(name: string) {
-    // console.log('Trying to find Drive Folder', name);
-    // console.log('Auth', auth);
+    console.log('Trying to find Drive Folder', name);
     const files = await this.listFilesOrFolders(false);
-    // console.log('Files', files);
     const folder = files.filter(file => file.name === name);
-    // console.log('findFolder', folder);
+    console.log('findFolder', folder);
     return folder[0];
   }
 
   async uploadFile(fileName, folderId = '') {
     try {
-      await this.authorizeGoogleClient();
+      await this.gdriveAuthService.authorizedGoogleDriveClient();
 
       const fileSize = fs.statSync(fileName).size;
       const drive = google.drive({ version: 'v3' });
@@ -89,9 +97,9 @@ export class GdriveService {
     }
   }
 
-  async listFilesOrFolders(file = true, folderId = null) {
+  private async listFilesOrFolders(file = true, folderId = null) {
     try {
-      await this.authorizeGoogleClient();
+      await this.gdriveAuthService.authorizedGoogleDriveClient();
       const drive = google.drive({ version: 'v3' });
       const fileParams = {
         pageSize: 100,
