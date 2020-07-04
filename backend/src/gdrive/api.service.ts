@@ -7,14 +7,17 @@ import { GdriveAuthService } from './auth.service';
 
 @Injectable()
 export class GdriveService {
-  constructor(private gdriveAuthService: GdriveAuthService) {}
+  public googleDriveClient;
+  constructor(private gdriveAuthService: GdriveAuthService) {
+    this.googleDriveClient = this.gdriveAuthService.authorizedGoogleDriveClient();
+  }
   directory = `${process.env.TRANSMISSION_DOWNLOAD_DIRECTORY}/complete`;
   // Called by the transmission poller
   // Checks if transmission
   // Uploads completed downloads to google drive
   public async processDownloads() {
     const completedTransmissionDownloads = await this.getCompletedTransmissionDownloads();
-    const googleDriveBookFolder = await this.findFolder('AudioBooks');
+    const googleDriveBookFolder = await this.findFolder();
 
     googleDriveBookFolder &&
       completedTransmissionDownloads.forEach(async file => {
@@ -24,7 +27,7 @@ export class GdriveService {
         );
       });
   }
-  
+
   private async getCompletedTransmissionDownloads() {
     console.log(
       `GdriveService -> processDownloads -> directory`,
@@ -59,18 +62,21 @@ export class GdriveService {
     return files;
   }
 
-  async findFolder(name: string) {
-    console.log('Trying to find Drive Folder', name);
+  async findFolder(name = null) {
+    const folderName = name || process.env.GOOGLE_DRIVE_AUDIO_BOOK_FOLDER_NAME;
     const files = await this.listFilesOrFolders(false);
-    const folder = files.filter(file => file.name === name);
-    console.log('findFolder', folder);
+    const folder = files.filter(
+      file => file.name.toLowerCase() === folderName.toLowerCase(),
+    );
+    console.log(
+      `Google Drive Folder ${process.env.GOOGLE_DRIVE_AUDIO_BOOK_FOLDER_NAME}:`,
+      folder,
+    );
     return folder[0];
   }
 
   async uploadFile(fileName, folderId = '') {
     try {
-      await this.gdriveAuthService.authorizedGoogleDriveClient();
-
       const fileSize = fs.statSync(fileName).size;
       const drive = google.drive({ version: 'v3' });
       const res = await drive.files.create(
@@ -99,7 +105,6 @@ export class GdriveService {
 
   private async listFilesOrFolders(file = true, folderId = null) {
     try {
-      await this.gdriveAuthService.authorizedGoogleDriveClient();
       const drive = google.drive({ version: 'v3' });
       const fileParams = {
         pageSize: 100,

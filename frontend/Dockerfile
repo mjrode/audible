@@ -14,7 +14,9 @@ RUN npm install
 # RUN npm ci --only-production
 
 # Bundle the apps source code inside the Docker image
-COPY . ./
+COPY . .
+
+EXPOSE 3000
 
 CMD ["npm", "start"]
 

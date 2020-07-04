@@ -5,17 +5,19 @@ FROM node:12.13-alpine
 # This is the working directory for your application
 WORKDIR /usr/src/app/backend
 
-
 # Copy both package.json and package-lock.json to the working directory
 # Order is important
 COPY package*.json tsconfig.json ./
 # Install dependencies
+
 RUN npm install
 # If you are building for production we would use
 # RUN npm ci --only-production
 
 # Bundle the apps source code inside the Docker image
-COPY . /usr/src/app/backend
+COPY . .
+
+EXPOSE 5000
 
 CMD ["npm", "start"]
 

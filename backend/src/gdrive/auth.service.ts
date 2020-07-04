@@ -1,5 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { google } from 'googleapis';
+import { OAuthClientOptions } from 'auth0';
+import { OAuth2 } from 'oauth';
 const fs = require('fs');
 // This service is responsible for:
 // 1. Authenticate a client which can make requests to Google Drive
@@ -35,7 +37,7 @@ export class GdriveAuthService {
     return this.setScopedAuthUrl(auth);
   }
 
-  public async authorizedGoogleDriveClient() {
+  public async authorizedGoogleDriveClient(): Promise<any> {
     if (this.isClientAuthorized) {
       const client = this.createOAuthGoogleClient();
       const authTokens = await this.googleDriveCredentials();
@@ -48,7 +50,7 @@ export class GdriveAuthService {
     }
   }
 
-  private createOAuthGoogleClient() {
+  private createOAuthGoogleClient(): Partial<any> {
     const client = new google.auth.OAuth2(
       this.googleConfig.client_id,
       this.googleConfig.client_secret,
