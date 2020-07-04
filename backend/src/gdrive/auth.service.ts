@@ -1,7 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { google } from 'googleapis';
-import { OAuthClientOptions } from 'auth0';
-import { OAuth2 } from 'oauth';
 const fs = require('fs');
 // This service is responsible for:
 // 1. Authenticate a client which can make requests to Google Drive
