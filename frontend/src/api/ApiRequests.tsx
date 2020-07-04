@@ -15,7 +15,7 @@ export const backendRequest: any = async (options) => {
 
 export const downloadBook = async (infoHash) => {
   try {
-    const response = await fetch(`/transmission/add/${infoHash}`, {
+    const response = await fetch(`/api/transmission/add/${infoHash}`, {
       method: 'get',
       headers: new Headers({
         'Content-Type': 'application/json',
@@ -52,7 +52,7 @@ export const getDetails = async (url) => {
 
 export const getGoogleAuthUrl = async () => {
   try {
-    const response = await fetch(`/gdrive/authorize_credentials`, {
+    const response = await fetch(`/api/gdrive/authorize_credentials`, {
       method: 'get',
       headers: new Headers({
         'Content-Type': 'application/json',
@@ -69,7 +69,7 @@ export const getGoogleAuthUrl = async () => {
 export const setBackendGoogleAuthToken = async (token) => {
   console.log('Token', token);
   try {
-    const response = await fetch(`/gdrive/validation/${token}`, {
+    const response = await fetch(`/api/gdrive/validation/${token}`, {
       method: 'get',
       headers: new Headers({
         'Content-Type': 'application/json',
@@ -86,14 +86,14 @@ export const setBackendGoogleAuthToken = async (token) => {
 
 export const checkIfClientIsAuthorized = async () => {
   try {
-    const response = await fetch(`/gdrive/authorized`, {
+    const response = await fetch('/api/gdrive/authorized', {
       method: 'get',
       headers: new Headers({
         'Content-Type': 'application/json',
         Accept: 'application/json',
       }),
     });
-    console.log('Check if clien auth api frontend');
+    console.log('Check if client auth api frontend', response);
     const json = await response.json();
     console.log('client is authorized', json);
     return json;

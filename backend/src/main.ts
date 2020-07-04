@@ -5,7 +5,13 @@ require('dotenv').config();
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
-  console.log('NODE_ENV', process.env);
+  app.setGlobalPrefix('api');
+
+  const envVars = Object.entries(process.env).filter(entry => {
+    const [key, value] = entry;
+    if (!key.includes('npm')) return [key, value];
+  });
+  console.log('NODE_ENV', envVars);
   await app.listen(5000);
 }
 bootstrap();

@@ -21,18 +21,18 @@
 
 
 FROM node:10 AS builder
-WORKDIR /app/frontend
-COPY ./package.json ./
+WORKDIR /app
+COPY package*.json tsconfig.json ./
 RUN npm install
 COPY . .
 RUN npm run build
 
 
 FROM node:10-alpine
-WORKDIR /app/frontend
+WORKDIR /app
 COPY --from=builder /app ./
 EXPOSE 3000
-CMD ["npm", "run", "start"]
+CMD ["npm", "start"]
 # RUN npm run build
 
 # FROM node:12.13-alpine as production

@@ -8,6 +8,7 @@
     "@types/classnames": "^2.2.10",
     "@types/react-router-dom": "^5.1.3",
     "axios": "^0.19.2",
+    "http-proxy-middleware": "^1.0.4",
     "material-kit-react": "^1.8.0",
     "material-ui-search-bar": "^1.0.0-beta.14",
     "react": "^16.13.0",
@@ -20,7 +21,7 @@
     "string-strip-html": "^4.3.16",
     "tslib": "^1.11.1"
   },
-  "proxy": "http://audible:5000",
+  "proxy": "http://audible-backend:5000",
   "scripts": {
     "start": "react-scripts-ts start",
     "build": "react-scripts-ts build",
