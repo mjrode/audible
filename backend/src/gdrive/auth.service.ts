@@ -37,7 +37,7 @@ export class GdriveAuthService {
   }
 
   public async authorizedGoogleDriveClient(): Promise<any> {
-    if (this.isClientAuthorized) {
+    if (await this.isClientAuthorized()) {
       const client = this.createOAuthGoogleClient();
       const authTokens = await this.googleDriveCredentials();
       await client.setCredentials(authTokens);
