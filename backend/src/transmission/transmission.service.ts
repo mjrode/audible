@@ -174,6 +174,10 @@ export class TransmissionService {
   public transmissionClient() {
     const config = transmissionConfig();
     const transmission = new Transmission(config);
+    console.log(
+      `TransmissionService -> transmissionClient -> transmission`,
+      transmission,
+    );
     return transmission;
   }
 }

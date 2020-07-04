@@ -71,6 +71,10 @@ export class GdriveAuthService {
       const client = this.createOAuthGoogleClient();
 
       const googleDriveCredentials = await client.getToken(token);
+      console.log(
+        `GdriveAuthService -> generateTokensAndWriteToFile -> googleDriveCredentials`,
+        googleDriveCredentials,
+      );
 
       await fs.writeFileSync(
         process.env.GOOGLE_DRIVE_CREDENTIALS_PATH,
