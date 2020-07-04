@@ -9,9 +9,17 @@ import { GdriveAuthService } from './auth.service';
 @Injectable()
 export class GdriveService {
   public googleDriveClient;
-  constructor(private gdriveAuthService: GdriveAuthService) {
-    this.googleDriveClient = this.gdriveAuthService.authorizedGoogleDriveClient();
+  constructor(private gdriveAuthService: GdriveAuthService) {}
+
+  public async onModuleInit() {
+    console.log('Authorizing Google Client');
+    this.googleDriveClient = await this.gdriveAuthService.authorizedGoogleDriveClient();
+    console.log(
+      `GdriveService -> onModuleInit -> this.googleDriveClient`,
+      this.googleDriveClient,
+    );
   }
+
   directory = `${process.env.TRANSMISSION_DOWNLOAD_DIRECTORY}/complete`;
   // Called by the transmission poller
   // Checks if transmission

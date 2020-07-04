@@ -80,6 +80,7 @@ export class TransmissionService {
 
   async getTorrentDetail(id): Promise<any> {
     const details: any = await this.getTorrentDetailsPromise(id);
+    console.log(`TransmissionService -> constructor -> details`, details);
     return details;
   }
 
