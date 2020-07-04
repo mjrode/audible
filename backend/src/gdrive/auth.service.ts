@@ -25,9 +25,7 @@ export class GdriveAuthService {
   };
 
   public async isClientAuthorized() {
-    const res = await fs.existsSync(process.env.GOOGLE_DRIVE_CREDENTIALS_PATH);
-    console.log(`GdriveAuthService -> isClientAuthorized -> auth`, res);
-    return res;
+    return fs.existsSync(process.env.GOOGLE_DRIVE_CREDENTIALS_PATH);
   }
 
   public urlForValidationCode(): string {
@@ -73,6 +71,12 @@ export class GdriveAuthService {
       const client = this.createOAuthGoogleClient();
 
       const googleDriveCredentials = await client.getToken(token);
+
+      await fs.writeFileSync(
+        process.env.GOOGLE_DRIVE_CREDENTIALS_PATH,
+        JSON.stringify(googleDriveCredentials.tokens),
+      );
+
       await fs.ensureFileSync(process.env.GOOGLE_DRIVE_CREDENTIALS_PATH);
       return { status: googleDriveCredentials.res.status };
     } catch (error) {
