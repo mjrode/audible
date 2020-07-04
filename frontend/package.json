@@ -20,7 +20,6 @@
     "string-strip-html": "^4.3.16",
     "tslib": "^1.11.1"
   },
-  "proxy": "http://audible-backend:5000",
   "scripts": {
     "start": "react-scripts-ts start",
     "build": "react-scripts-ts build",

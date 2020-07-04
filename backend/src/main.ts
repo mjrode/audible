@@ -11,6 +11,8 @@ async function bootstrap() {
     const [key, value] = entry;
     if (!key.includes('npm')) return [key, value];
   });
+  app.enableCors();
+
   console.log('NODE_ENV', envVars);
   await app.listen(5000);
 }

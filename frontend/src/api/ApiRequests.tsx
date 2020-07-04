@@ -1,4 +1,6 @@
 import axios from 'axios';
+console.log('processssss-', process.env);
+const apiUrl = process.env.REACT_APP_PROXY_SERVER;
 
 export const backendRequest: any = async (options) => {
   const res = encodeURI(options.url);
@@ -15,7 +17,8 @@ export const backendRequest: any = async (options) => {
 
 export const downloadBook = async (infoHash) => {
   try {
-    const response = await fetch(`/api/transmission/add/${infoHash}`, {
+    console.log(`apiUrl`, apiUrl);
+    const response = await fetch(apiUrl + `/api/transmission/add/${infoHash}`, {
       method: 'get',
       headers: new Headers({
         'Content-Type': 'application/json',
@@ -34,7 +37,7 @@ export const downloadBook = async (infoHash) => {
 export const getDetails = async (url) => {
   try {
     const response = await fetch(
-      `/audiobay/details/${encodeURIComponent(url)}`,
+      apiUrl + `/audiobay/details/${encodeURIComponent(url)}`,
       {
         method: 'get',
         headers: new Headers({
@@ -52,7 +55,7 @@ export const getDetails = async (url) => {
 
 export const getGoogleAuthUrl = async () => {
   try {
-    const response = await fetch(`/api/gdrive/authorize_credentials`, {
+    const response = await fetch(apiUrl + `/api/gdrive/authorize_credentials`, {
       method: 'get',
       headers: new Headers({
         'Content-Type': 'application/json',
@@ -69,7 +72,7 @@ export const getGoogleAuthUrl = async () => {
 export const setBackendGoogleAuthToken = async (token) => {
   console.log('Token', token);
   try {
-    const response = await fetch(`/api/gdrive/validation/${token}`, {
+    const response = await fetch(apiUrl + `/api/gdrive/validation/${token}`, {
       method: 'get',
       headers: new Headers({
         'Content-Type': 'application/json',
@@ -86,7 +89,8 @@ export const setBackendGoogleAuthToken = async (token) => {
 
 export const checkIfClientIsAuthorized = async () => {
   try {
-    const response = await fetch('/api/gdrive/authorized', {
+    console.log('PROCESS ----', process.env.NODE_ENV);
+    const response = await fetch(apiUrl + '/api/gdrive/authorized', {
       method: 'get',
       headers: new Headers({
         'Content-Type': 'application/json',
