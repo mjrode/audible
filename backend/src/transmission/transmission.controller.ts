@@ -37,6 +37,7 @@ export class TransmissionController {
   @Get('add/:id')
   async add(@Res() res, @Param('id') id) {
     const response = await this.transmissionService.addTorrent(id);
+    console.log(`TransmissionController -> add -> response`, response);
     return res.status(HttpStatus.OK).json(response);
   }
 }

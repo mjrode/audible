@@ -1,12 +1,9 @@
 import axios from 'axios';
-console.log('processssss-', process.env);
 const apiUrl = process.env.REACT_APP_PROXY_SERVER;
 
 export const backendRequest: any = async (options) => {
-  const res = encodeURI(options.url);
-
   const axiosOptions = {
-    url: options.url,
+    url: `${apiUrl}${options.url}`,
     method: options.method || 'get',
     ...(options.data && { data: options.data }),
   };
@@ -37,7 +34,7 @@ export const downloadBook = async (infoHash) => {
 export const getDetails = async (url) => {
   try {
     const response = await fetch(
-      apiUrl + `/audiobay/details/${encodeURIComponent(url)}`,
+      apiUrl + `/api/audiobay/details/${encodeURIComponent(url)}`,
       {
         method: 'get',
         headers: new Headers({

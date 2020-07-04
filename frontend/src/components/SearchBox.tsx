@@ -27,7 +27,7 @@ const SearchBox: React.FC<any> = ({
   };
 
   const submitForm = async () => {
-    const url = `/audiobay/${searchTerm}`;
+    const url = `/api/audiobay/${searchTerm}`;
     const response = await backendRequest({ url });
     console.log('Search Response', response);
     return response;
@@ -49,7 +49,7 @@ const SearchBox: React.FC<any> = ({
             <SearchBar
               searchIcon={<SearchIcon />}
               value={searchTerm}
-              onChange={newValue => setSearchTerm(newValue)}
+              onChange={(newValue) => setSearchTerm(newValue)}
               onRequestSearch={() => handleSearchSubmission()}
             />
           </Grid>

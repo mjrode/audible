@@ -4,7 +4,7 @@ import transmissionConfig from './transmission.config';
 import * as Transmission from 'transmission';
 import { EventEmitter } from 'events';
 import { InjectEventEmitter } from '../utils/event-emitter.decorator';
-import { TransmissionPoller } from './transmission.poller';
+import * as path from 'path';
 @Injectable()
 export class TransmissionService {
   constructor(@InjectEventEmitter() private readonly emitter: EventEmitter) {}
@@ -24,7 +24,7 @@ export class TransmissionService {
     if (torrents.length > 1) console.log('Torrent Details', torrents);
     const completedDownloads = await this.filterByDirectory(
       torrents,
-      process.env.TRANSMISSION_DOWNLOAD_DIRECTORY,
+      this.transmissionDownloadDirectory(),
     );
     if (completedDownloads.length < 1) return;
     return completedDownloads;
@@ -38,7 +38,7 @@ export class TransmissionService {
   }
 
   async findCompletedTorrents(torrents) {
-    return torrents.filter(torrent => torrent.precentComplete === 100);
+    return torrents.filter(torrent => torrent.percentComplete === 100);
   }
   async stats(): Promise<any> {
     const stats = await this.sessionStatsPromise();
@@ -48,11 +48,21 @@ export class TransmissionService {
   async addTorrent(hash): Promise<any> {
     const urlFromHash = `magnet:?xt=urn:btih:${hash}`;
     console.log('Trying to add torrent', hash);
+    const downloadDirectory =
+      this.transmissionDownloadDirectory() + '/incomplete';
+    console.log(
+      `TransmissionService -> constructor -> downloadDirectory`,
+      downloadDirectory,
+    );
     const newTorrent: any = await this.addTorrentPromise(urlFromHash, {
-      'download-dir': `${process.env.TRANSMISSION_DOWNLOAD_DIRECTORY}/incomplete`,
+      'download-dir': downloadDirectory,
     });
     console.log('newTorrent', newTorrent);
     return newTorrent;
+  }
+
+  transmissionDownloadDirectory() {
+    return path.resolve(`${process.env.TRANSMISSION_DOWNLOAD_DIRECTORY}`);
   }
 
   async getTorrentDetails(): Promise<any> {
@@ -66,7 +76,7 @@ export class TransmissionService {
             id: torrent.id,
             name: torrent.name,
             directory: torrent.downloadDir,
-            precentComplete: percentComplete,
+            percentComplete: percentComplete,
             status: this.getStatusType(torrent.status, percentComplete),
           };
         });
@@ -86,7 +96,7 @@ export class TransmissionService {
 
   async moveTorrentToCompletedDirectory(
     audiobooks,
-    location = `${process.env.TRANSMISSION_DOWNLOAD_DIRECTORY}/complete`,
+    location = this.transmissionDownloadDirectory() + '/complete',
   ): Promise<any> {
     console.log('Audibooks in move torrent', audiobooks);
     if (audiobooks.length < 1) {
