@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 const fs = require('fs');
+const shell = require('shelljs');
 
 const readline = require('readline');
 import { google } from 'googleapis';
@@ -35,7 +36,7 @@ export class GdriveService {
     );
     if (!fs.existsSync(this.directory)) {
       console.log('Directory does not exist');
-      await fs.mkdirSync(this.directory);
+      await shell.mkdir('-p', this.directory);
     }
     const completedTransmissionDownloads = await fs.readdirSync(
       this.directory,

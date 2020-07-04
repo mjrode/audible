@@ -56,19 +56,23 @@ export class TransmissionService {
   }
 
   async getTorrentDetails(): Promise<any> {
-    const details: any = await this.getTorrentDetailsPromise();
+    try {
+      const details: any = await this.getTorrentDetailsPromise();
 
-    if (details.torrents.length > 0) {
-      return details.torrents.map(torrent => {
-        const percentComplete = torrent.percentDone * 100;
-        return {
-          id: torrent.id,
-          name: torrent.name,
-          directory: torrent.downloadDir,
-          precentComplete: percentComplete,
-          status: this.getStatusType(torrent.status, percentComplete),
-        };
-      });
+      if (details.torrents.length > 0) {
+        return details.torrents.map(torrent => {
+          const percentComplete = torrent.percentDone * 100;
+          return {
+            id: torrent.id,
+            name: torrent.name,
+            directory: torrent.downloadDir,
+            precentComplete: percentComplete,
+            status: this.getStatusType(torrent.status, percentComplete),
+          };
+        });
+      }
+    } catch (error) {
+      console.log('Error', error);
     }
 
     return [];
