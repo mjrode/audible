@@ -48,6 +48,7 @@ export class GdriveController {
 
   @Get('authorized')
   async authorized(@Res() res) {
+    console.log('Calling Authorized--------------');
     const response = await this.gdriveAuthService.isClientAuthorized();
     console.log('Response', response);
     return res.status(HttpStatus.OK).json(response);

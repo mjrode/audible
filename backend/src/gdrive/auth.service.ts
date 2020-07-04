@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
+import * as path from 'path';
 import { google } from 'googleapis';
-const fs = require('fs');
+const fs = require('fs-extra');
 // This service is responsible for:
 // 1. Authenticate a client which can make requests to Google Drive
 // 2. Generate a url which will allow the user to authorize this app to access their gDrive account
@@ -43,9 +44,12 @@ export class GdriveAuthService {
       return client;
     } else {
       new Error(
-        `Google Drive authorization tokens are not set in ${process.env.GOOGLE_DRIVE_CREDENTIALS_PATH}`,
+        `Google Drive authorization tokens are not set in ${this.getGoogleDriveCredentialsPath()}`,
       );
     }
+  }
+  private getGoogleDriveCredentialsPath() {
+    return path.join(this.root(), process.env.GOOGLE_DRIVE_CREDENTIALS_PATH);
   }
 
   private createOAuthGoogleClient(): Partial<any> {
@@ -67,15 +71,12 @@ export class GdriveAuthService {
   }
 
   public async generateTokensAndWriteToFile(token: string) {
+    console.log('Current path', path.dirname(__filename));
     try {
       const client = this.createOAuthGoogleClient();
 
       const googleDriveCredentials = await client.getToken(token);
-
-      await fs.writeFileSync(
-        process.env.GOOGLE_DRIVE_CREDENTIALS_PATH,
-        JSON.stringify(googleDriveCredentials.tokens),
-      );
+      await fs.ensureFileSync(this.getGoogleDriveCredentialsPath());
       return { status: googleDriveCredentials.res.status };
     } catch (error) {
       return {
@@ -85,10 +86,15 @@ export class GdriveAuthService {
       };
     }
   }
+  private root() {
+    return path.dirname(require.main.filename || process.mainModule.filename);
+  }
 
   private async googleDriveCredentials() {
+    console.log('Root', this.root());
+    console.log('Current path', path.dirname(__filename));
     const tokens = await fs.readFileSync(
-      process.env.GOOGLE_DRIVE_CREDENTIALS_PATH,
+      this.getGoogleDriveCredentialsPath(),
       'utf8',
     );
     return JSON.parse(tokens);
