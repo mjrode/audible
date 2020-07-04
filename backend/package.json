@@ -5,7 +5,6 @@
   "author": "Michael Rode",
   "license": "MIT",
   "scripts": {
-    "prebuild": "rimraf dist",
     "build": "nest build",
     "start:dev:db": "sh ./src/scripts/start-db.sh",
     "lint": "eslint . --cache --ext=.ts,.tsx,.js,.jsx",
@@ -58,7 +57,7 @@
     "passport-local": "^1.0.0",
     "pg": "^7.18.2",
     "reflect-metadata": "^0.1.12",
-    "rimraf": "^2.6.2",
+    "rimraf": "^2.7.1",
     "rxjs": "^6.6.0",
     "transmission": "^0.4.10",
     "transmission-api": "0.0.1",

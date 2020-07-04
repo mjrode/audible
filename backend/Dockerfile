@@ -1,41 +1,35 @@
-# This is the image that we want to build from
-FROM node:12.13-alpine
+# FROM node:12
 
-# Directory to hold the app code inside the image.
-# This is the working directory for your application
-WORKDIR /usr/src/app/backend
 
-# Copy both package.json and package-lock.json to the working directory
-# Order is important
-COPY package*.json tsconfig.json ./
-# Install dependencies
+# WORKDIR /home/node
 
-RUN npm install
-# If you are building for production we would use
-# RUN npm ci --only-production
+# RUN npm install -g @nestjs/cli@6.11.1 && \
+#   npm i -g typescript  && \
+#   npm i -g rimraf
 
-# Bundle the apps source code inside the Docker image
-COPY . .
 
-EXPOSE 5000
+# COPY package*.json tsconfig*.json ./
+# RUN npm install
+# RUN chown -R node /home/node/*
 
-CMD ["npm", "start"]
-
-# RUN npm run build
-
-# FROM node:12.13-alpine as production
-
-# ARG NODE_ENV=production
-# ENV NODE_ENV=${NODE_ENV}
-
-# WORKDIR /usr/src/app
-
-# COPY package*.json ./
-
-# RUN npm install --only=production
+# USER node
 
 # COPY . .
+# RUN npm run build
 
-# COPY --from=development /usr/src/app/dist ./dist
+# EXPOSE 5000
 
-# CMD ["node", "dist/main"]
+# CMD npm run start:prod
+
+FROM node:10 AS builder
+WORKDIR /app
+COPY ./package.json ./
+RUN npm install
+COPY . .
+RUN npm run build
+
+
+FROM node:10-alpine
+WORKDIR /app
+COPY --from=builder /app ./
+CMD ["npm", "run", "start:prod"]
