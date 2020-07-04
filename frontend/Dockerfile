@@ -1,25 +1,38 @@
-# This is the image that we want to build from
-FROM node:12.13-alpine
+# # This is the image that we want to build from
+# FROM node:12.13-alpine
 
-# Directory to hold the app code inside the image.
-# This is the working directory for your application
-WORKDIR /usr/src/app/frontend
+# # Directory to hold the app code inside the image.
+# # This is the working directory for your application
+# WORKDIR /usr/src/app/frontend
 
-# Copy both package.json and package-lock.json to the working directory
-# Order is important
-COPY package*.json tsconfig.json ./
-# Install dependencies
+# # Copy both package.json and package-lock.json to the working directory
+# # Order is important
+# COPY package*.json tsconfig.json ./
+# # Install dependencies
+# RUN npm install
+# # If you are building for production we would use
+# # RUN npm ci --only-production
+
+# # Bundle the apps source code inside the Docker image
+# COPY . ./
+
+# CMD ["npm", "start"]
+
+
+
+FROM node:10 AS builder
+WORKDIR /app/frontend
+COPY ./package.json ./
 RUN npm install
-# If you are building for production we would use
-# RUN npm ci --only-production
-
-# Bundle the apps source code inside the Docker image
 COPY . .
+RUN npm run build
 
+
+FROM node:10-alpine
+WORKDIR /app/frontend
+COPY --from=builder /app ./
 EXPOSE 3000
-
-CMD ["npm", "start"]
-
+CMD ["npm", "run", "start"]
 # RUN npm run build
 
 # FROM node:12.13-alpine as production

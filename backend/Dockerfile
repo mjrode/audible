@@ -22,7 +22,7 @@
 # CMD npm run start:prod
 
 FROM node:10 AS builder
-WORKDIR /app
+WORKDIR /app/backend
 COPY ./package.json ./
 RUN npm install
 COPY . .
@@ -30,7 +30,7 @@ RUN npm run build
 
 
 FROM node:10-alpine
-WORKDIR /app
+WORKDIR /app/backend
 COPY --from=builder /app ./
 EXPOSE 5000
 CMD ["npm", "run", "start"]
