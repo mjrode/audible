@@ -44,12 +44,9 @@ export class GdriveAuthService {
       return client;
     } else {
       new Error(
-        `Google Drive authorization tokens are not set in ${this.getGoogleDriveCredentialsPath()}`,
+        `Google Drive authorization tokens are not set in ${process.env.GOOGLE_DRIVE_CREDENTIALS_PATH}`,
       );
     }
-  }
-  private getGoogleDriveCredentialsPath() {
-    return path.join(this.root(), process.env.GOOGLE_DRIVE_CREDENTIALS_PATH);
   }
 
   private createOAuthGoogleClient(): Partial<any> {
@@ -76,7 +73,7 @@ export class GdriveAuthService {
       const client = this.createOAuthGoogleClient();
 
       const googleDriveCredentials = await client.getToken(token);
-      await fs.ensureFileSync(this.getGoogleDriveCredentialsPath());
+      await fs.ensureFileSync(process.env.GOOGLE_DRIVE_CREDENTIALS_PATH);
       return { status: googleDriveCredentials.res.status };
     } catch (error) {
       return {
@@ -94,7 +91,7 @@ export class GdriveAuthService {
     console.log('Root', this.root());
     console.log('Current path', path.dirname(__filename));
     const tokens = await fs.readFileSync(
-      this.getGoogleDriveCredentialsPath(),
+      process.env.GOOGLE_DRIVE_CREDENTIALS_PATH,
       'utf8',
     );
     return JSON.parse(tokens);
