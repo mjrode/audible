@@ -1,0 +1,101 @@
+import { Test, TestingModule } from '@nestjs/testing';
+import { setupRecorder } from 'nock-record';
+import { OAuthClientService } from './oauth-client.service';
+import * as fs from 'fs';
+
+const record = setupRecorder();
+
+describe('OAuthClientService', () => {
+  let oAuthClientService: OAuthClientService;
+  jest.mock('fs');
+
+  beforeEach(async () => {
+    console.log('Process env', process.env);
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [OAuthClientService],
+    }).compile();
+
+    oAuthClientService = module.get<OAuthClientService>(OAuthClientService);
+  });
+
+  it('Instantiates a new instance of OAuthClientService', () => {
+    const expectedResponse =
+      '{"oAuthClient":{"_events":{},"_eventsCount":0,"transporter":{},"credentials":{},"certificateCache":{},"certificateExpiry":null,"certificateCacheFormat":"PEM","refreshTokenPromises":{},"eagerRefreshThresholdMillis":300000}}';
+
+    expect(JSON.stringify(oAuthClientService)).toEqual(expectedResponse);
+  });
+
+  describe('When google drive credentials are already set', () => {
+    let googleDriveCredentials;
+    beforeEach(async () => {
+      googleDriveCredentials = {
+        access_token:
+          'ya29.a0AfH6SMDv0YoXM_uuxnIZDWRENEgLQ6hPz-2ZPPaHKSPONjmU0IE3Y533D1LkuJXIDvwSn4dgAXh0zBY6c23SB4enFMF3Ioz3Jm1SROvJ03hYoy58jFT7KielqkjOIerr6OsZ6FzL0KlWgJ4cVQa1CGB_2RowCHr0AcI',
+        refresh_token:
+          '1//0fSRmN81hi2hgCgYIARAAGA8SNwF-L9IrsRHMKClkKcTOe4kYW7WR0UFI3VmZaH8qgACE0IaBLpe7ZktMpMOE-fSs6t3WbOIjAcQ',
+        scope: 'https://www.googleapis.com/auth/drive',
+        token_type: 'Bearer',
+        expiry_date: 1593898438789,
+      };
+      fs.writeFileSync(
+        process.env.GOOGLE_DRIVE_CREDENTIALS_PATH,
+        JSON.stringify(googleDriveCredentials),
+      );
+    });
+
+    afterEach(async () => {
+      fs.unlinkSync(process.env.GOOGLE_DRIVE_CREDENTIALS_PATH);
+    });
+
+    it.only('returns an authenticated client', () => {
+      const response = oAuthClientService.googleClient();
+      expect(JSON.stringify(response.credentials)).toMatch(
+        JSON.stringify(googleDriveCredentials),
+      );
+    });
+  });
+
+  describe('When google drive credentials are not set', () => {
+    it('returns a url to fetch a token', () => {
+      const response = oAuthClientService.getUrlForNewToken();
+
+      expect(JSON.stringify(response)).toMatch(
+        `https://accounts.google.com/o/oauth2/v2/auth?access_type=offline&prompt=consent&scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fdrive&response_type=code&client_id=780470202475-k4t146ff6bopjgekimobn82v6haqiv7f.apps.googleusercontent.com&redirect_uri=urn%3Aietf%3Awg%3Aoauth%3A2.0%3Aoob`,
+      );
+    });
+
+    describe('When using a valid token', () => {
+      it('returns google drive credentials', async () => {
+        const { completeRecording, assertScopesFinished } = await record(
+          'token-returns-new-credentials',
+        );
+        const response = await oAuthClientService.generateAuthCredentials(
+          '4/1gHUPTsV5UYufT2DCZX_5m9rDJEvWDJB7vd0-HsIlAleUhQ4n5qy3XA',
+        );
+        completeRecording();
+        assertScopesFinished();
+
+        expect(response.credentials.access_token).toMatch(
+          `ya29.a0AfH6SMDrT3DHlCHsk1EtxT32ga_5_XiaNV6smrym1WlUqwaSY6iIpgHZHWLUbruG8V9O-1Jg0R1nV2LaTjV723YC0owOv4A24Vk22UUQgIh29pIqGxqA67gVRJN3bX3vMaZBw2hU62oy5LaXnpLh75MPtjIG8xPZdAM`,
+        );
+      });
+    });
+
+    describe('When using an invalid token', () => {
+      it('returns google drive credentials', async () => {
+        const { completeRecording, assertScopesFinished } = await record(
+          'invalid-token-returns-error',
+        );
+        const response = await oAuthClientService.generateAuthCredentials(
+          'invalidToken',
+        );
+        completeRecording();
+        assertScopesFinished();
+
+        expect(JSON.stringify(response)).toMatch(
+          '{"status":400,"error":"invalid_grant","error_description":"Malformed auth code."}',
+        );
+      });
+    });
+  });
+});

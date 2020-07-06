@@ -1,11 +1,11 @@
 import { Module } from '@nestjs/common';
-import { GdriveService } from './api.service';
+import { GdriveService } from './google-drive.service';
 import { GdriveController } from './gdrive.controller';
 import { GdriveAuthService } from './auth.service';
 
 @Module({
-  providers: [GdriveService, GdriveAuthService],
+  providers: [GdriveService],
   controllers: [GdriveController],
-  exports: [GdriveService, GdriveAuthService],
+  exports: [GdriveService],
 })
 export class GdriveModule {}

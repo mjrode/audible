@@ -1,7 +1,7 @@
 import { Injectable, forwardRef, Inject } from '@nestjs/common';
 import { EventEmitter } from 'events';
 import { TransmissionService } from './transmission.service';
-import { GdriveService } from '../gdrive/api.service';
+import { GdriveService } from '../gdrive/google-drive.service';
 import { InjectEventEmitter } from '../utils/event-emitter.decorator';
 import { GdriveAuthService } from '../gdrive/auth.service';
 @Injectable()

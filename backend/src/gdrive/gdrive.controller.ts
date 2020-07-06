@@ -1,5 +1,5 @@
 import { Controller, Get, Res, HttpStatus, Param } from '@nestjs/common';
-import { GdriveService } from './api.service';
+import { GdriveService } from './google-drive.service';
 import * as url from 'url';
 import { pathToFileURL } from 'url';
 import { GdriveAuthService } from './auth.service';

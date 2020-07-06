@@ -7,24 +7,31 @@ const shell = require('shelljs');
 
 const readline = require('readline');
 import { google } from 'googleapis';
-import { GdriveAuthService } from './auth.service';
+import { OAuthClientService } from './oauth-client.service';
 
 @Injectable()
 export class GdriveService {
-  constructor(private gdriveAuthService: GdriveAuthService) {}
-  directory = `${process.env.TRANSMISSION_DOWNLOAD_DIRECTORY}/complete`;
+  directory: string;
+  oAuthClient;
+  googleClient;
 
-  public async authorizeGoogleDriveClient() {
-    return this.gdriveAuthService.authorizedGoogleDriveClient();
+  constructor(private readonly oAuthClientService: OAuthClientService) {
+    this.directory = `${process.env.TRANSMISSION_DOWNLOAD_DIRECTORY}/complete`;
+    this.googleDriveClient = this.setGoogleDriveClient();
+  }
+
+  private setGoogleDriveClient() {
+    google.drive({ version: 'v3' });
+    if (!this.oAuthClientService.isGoogleClientAuthorized()) {
+
+    }
   }
 
   public async getFiles(folderId = null, file = true) {
-    await this.authorizeGoogleDriveClient();
     return this.listFilesOrFolders(file, folderId);
   }
 
   public async findFolder(name = null) {
-    await this.authorizeGoogleDriveClient();
     const folderName = name || process.env.GOOGLE_DRIVE_AUDIO_BOOK_FOLDER_NAME;
     const files = await this.listFilesOrFolders(false);
     const folder = files.filter(
@@ -39,10 +46,9 @@ export class GdriveService {
 
   public async uploadFile(fileName, folderId = '') {
     try {
-      await this.authorizeGoogleDriveClient();
       console.log(`GdriveService -> uploadFile -> fileName`, fileName);
       const fileSize = fs.statSync(fileName).size;
-      const drive = google.drive({ version: 'v3' });
+
       console.log(`GdriveService -> uploadFile -> drive`, drive);
       const res = await drive.files.create(
         {
@@ -68,7 +74,6 @@ export class GdriveService {
   }
 
   public async processDownloads() {
-    await this.authorizeGoogleDriveClient();
     const completedTransmissionDownloads = await this.getCompletedTransmissionDownloads();
     const googleDriveBookFolder = await this.findFolder();
 

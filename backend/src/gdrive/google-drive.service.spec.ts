@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { GdriveService } from './api.service';
+import { GdriveService } from './google-drive.service';
 import { GdriveAuthService } from './auth.service';
 import { setupRecorder } from 'nock-record';
 
