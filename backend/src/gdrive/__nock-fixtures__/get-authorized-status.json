@@ -1,0 +1,29 @@
+[
+    {
+        "scope": "http://127.0.0.1:55788",
+        "method": "GET",
+        "path": "/api/gdrive/authorized",
+        "body": "",
+        "status": 404,
+        "response": {
+            "statusCode": 404,
+            "error": "Not Found",
+            "message": "Cannot GET /api/gdrive/authorized"
+        },
+        "rawHeaders": [
+            "X-Powered-By",
+            "Express",
+            "Content-Type",
+            "application/json; charset=utf-8",
+            "Content-Length",
+            "84",
+            "ETag",
+            "W/\"54-JQLG1ZbiCq/cYNz05KR8NgWgPik\"",
+            "Date",
+            "Sun, 05 Jul 2020 01:19:43 GMT",
+            "Connection",
+            "close"
+        ],
+        "responseIsBinary": false
+    }
+]

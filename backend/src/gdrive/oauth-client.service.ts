@@ -18,7 +18,8 @@ export class OAuthClientService {
     google.options({ auth: this.oAuthClient });
   }
 
-  get googleClient(): any {
+  public async googleClient() {
+    await this.loadGoogleDriveCredentials();
     return this.oAuthClient;
   }
 
@@ -34,7 +35,9 @@ export class OAuthClientService {
         process.env.GOOGLE_DRIVE_CREDENTIALS_PATH,
         googleDriveCredentials.tokens,
       );
-      return this.oAuthClient.setCredentials(googleDriveCredentials);
+      this.oAuthClient.setCredentials(googleDriveCredentials);
+
+      return this.oAuthClient;
     } catch (error) {
       return {
         status: error.response.status,
@@ -50,5 +53,20 @@ export class OAuthClientService {
       prompt: 'consent',
       scope: SCOPES,
     });
+  }
+
+  private async loadGoogleDriveCredentials() {
+    try {
+      const googleDriveCredentials = await fs.readFileSync(
+        process.env.GOOGLE_DRIVE_CREDENTIALS_PATH,
+        'utf8',
+      );
+
+      return this.oAuthClient.setCredentials(
+        JSON.parse(googleDriveCredentials),
+      );
+    } catch (e) {
+      throw Error('Google Drive client is not authenticated');
+    }
   }
 }

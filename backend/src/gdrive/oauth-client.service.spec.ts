@@ -10,7 +10,6 @@ describe('OAuthClientService', () => {
   jest.mock('fs');
 
   beforeEach(async () => {
-    console.log('Process env', process.env);
     const module: TestingModule = await Test.createTestingModule({
       providers: [OAuthClientService],
     }).compile();
@@ -18,9 +17,14 @@ describe('OAuthClientService', () => {
     oAuthClientService = module.get<OAuthClientService>(OAuthClientService);
   });
 
+  afterEach(async () => {
+    const credsPath = process.env.GOOGLE_DRIVE_CREDENTIALS_PATH;
+    if (await fs.existsSync(credsPath)) fs.unlinkSync(credsPath);
+  });
+
   it('Instantiates a new instance of OAuthClientService', () => {
     const expectedResponse =
-      '{"oAuthClient":{"_events":{},"_eventsCount":0,"transporter":{},"credentials":{},"certificateCache":{},"certificateExpiry":null,"certificateCacheFormat":"PEM","refreshTokenPromises":{},"eagerRefreshThresholdMillis":300000}}';
+      '{"oAuthClient":{"_events":{},"_eventsCount":0,"transporter":{},"credentials":{},"certificateCache":{},"certificateExpiry":null,"certificateCacheFormat":"PEM","refreshTokenPromises":{},"_clientId":"780470202475-k4t146ff6bopjgekimobn82v6haqiv7f.apps.googleusercontent.com","_clientSecret":"4Kt0KEMNBfowkstThkcJq2RO","redirectUri":"urn:ietf:wg:oauth:2.0:oob","eagerRefreshThresholdMillis":300000}}';
 
     expect(JSON.stringify(oAuthClientService)).toEqual(expectedResponse);
   });
@@ -43,12 +47,8 @@ describe('OAuthClientService', () => {
       );
     });
 
-    afterEach(async () => {
-      fs.unlinkSync(process.env.GOOGLE_DRIVE_CREDENTIALS_PATH);
-    });
-
-    it.only('returns an authenticated client', () => {
-      const response = oAuthClientService.googleClient();
+    it('returns an authenticated client', async () => {
+      const response = await oAuthClientService.googleClient();
       expect(JSON.stringify(response.credentials)).toMatch(
         JSON.stringify(googleDriveCredentials),
       );
@@ -56,6 +56,14 @@ describe('OAuthClientService', () => {
   });
 
   describe('When google drive credentials are not set', () => {
+    it('returns an error', async () => {
+      expect(oAuthClientService.googleClient()).rejects.toThrow(
+        'Google Drive client is not authenticated',
+      );
+    });
+  });
+
+  describe('When authenticating the google drive client', () => {
     it('returns a url to fetch a token', () => {
       const response = oAuthClientService.getUrlForNewToken();
 
@@ -75,7 +83,7 @@ describe('OAuthClientService', () => {
         completeRecording();
         assertScopesFinished();
 
-        expect(response.credentials.access_token).toMatch(
+        expect(response.credentials.tokens.access_token).toMatch(
           `ya29.a0AfH6SMDrT3DHlCHsk1EtxT32ga_5_XiaNV6smrym1WlUqwaSY6iIpgHZHWLUbruG8V9O-1Jg0R1nV2LaTjV723YC0owOv4A24Vk22UUQgIh29pIqGxqA67gVRJN3bX3vMaZBw2hU62oy5LaXnpLh75MPtjIG8xPZdAM`,
         );
       });

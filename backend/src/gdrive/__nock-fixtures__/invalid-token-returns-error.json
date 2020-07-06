@@ -1,0 +1,48 @@
+[
+    {
+        "scope": "https://oauth2.googleapis.com:443",
+        "method": "POST",
+        "path": "/token",
+        "body": "code=invalidToken&client_id=780470202475-k4t146ff6bopjgekimobn82v6haqiv7f.apps.googleusercontent.com&client_secret=4Kt0KEMNBfowkstThkcJq2RO&redirect_uri=urn%3Aietf%3Awg%3Aoauth%3A2.0%3Aoob&grant_type=authorization_code&code_verifier=",
+        "status": 400,
+        "response": [
+            "1f",
+            "8b",
+            "08",
+            "00",
+            "00",
+            "00000002ffabe65250504a2d2aca2f52b25250cacc2b4bccc94c894f2f4acc2b51d281cbc5a7a416271765169464e6e781d4f926e6a4e517e5a6a628249696642824e7a7a4ea2971d502005ac1275a4d000000"
+        ],
+        "rawHeaders": [
+            "Content-Type",
+            "application/json; charset=utf-8",
+            "Vary",
+            "Origin",
+            "Vary",
+            "X-Origin",
+            "Vary",
+            "Referer",
+            "Content-Encoding",
+            "gzip",
+            "Date",
+            "Sun, 05 Jul 2020 00:28:37 GMT",
+            "Server",
+            "scaffolding on HTTPServer2",
+            "Cache-Control",
+            "private",
+            "X-XSS-Protection",
+            "0",
+            "X-Frame-Options",
+            "SAMEORIGIN",
+            "X-Content-Type-Options",
+            "nosniff",
+            "Alt-Svc",
+            "h3-29=\":443\"; ma=2592000,h3-27=\":443\"; ma=2592000,h3-25=\":443\"; ma=2592000,h3-T050=\":443\"; ma=2592000,h3-Q050=\":443\"; ma=2592000,h3-Q046=\":443\"; ma=2592000,h3-Q043=\":443\"; ma=2592000,quic=\":443\"; ma=2592000; v=\"46,43\"",
+            "Connection",
+            "close",
+            "Transfer-Encoding",
+            "chunked"
+        ],
+        "responseIsBinary": false
+    }
+]
