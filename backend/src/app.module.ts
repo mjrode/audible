@@ -18,7 +18,7 @@ import { requestResponseLogger } from './utils/request-response-logger';
 })
 export class AppModule {
   constructor(@InjectEventEmitter() private readonly emitter: EventEmitter) {}
-  public async onModuleInit() {
+  public async onmoduleInit() {
     requestResponseLogger();
     console.log('Emitting event');
     this.emitter.emit('check-torrents');

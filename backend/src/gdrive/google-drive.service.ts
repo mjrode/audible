@@ -1,30 +1,31 @@
-// Tons of room to refactor this class.
-// I need to find a better way of setting the google drive client
-
-import { Injectable, Scope } from '@nestjs/common';
+import { Injectable, Scope, HttpException, HttpStatus } from '@nestjs/common';
 const fs = require('fs');
 const shell = require('shelljs');
+import * as os from 'os';
 
 const readline = require('readline');
 import { google } from 'googleapis';
 import { OAuthClientService } from './oauth-client.service';
+import * as path from 'path';
+import { requestResponseLogger } from '../utils/request-response-logger';
 
 @Injectable()
-export class GdriveService {
+export class GoogleDriveService {
   directory: string;
   oAuthClient;
   googleClient;
 
   constructor(private readonly oAuthClientService: OAuthClientService) {
-    this.directory = `${process.env.TRANSMISSION_DOWNLOAD_DIRECTORY}/complete`;
-    this.googleDriveClient = this.setGoogleDriveClient();
+    const dir = path.join(
+      os.homedir(),
+      `${process.env.TRANSMISSION_DOWNLOAD_DIRECTORY}/complete`,
+    );
+    this.directory = dir;
   }
 
-  private setGoogleDriveClient() {
+  public async onModuleInit() {
     google.drive({ version: 'v3' });
-    if (!this.oAuthClientService.isGoogleClientAuthorized()) {
-
-    }
+    this.googleClient = await this.oAuthClientService.setGoogleClient();
   }
 
   public async getFiles(folderId = null, file = true) {
@@ -33,39 +34,39 @@ export class GdriveService {
 
   public async findFolder(name = null) {
     const folderName = name || process.env.GOOGLE_DRIVE_AUDIO_BOOK_FOLDER_NAME;
-    const files = await this.listFilesOrFolders(false);
-    const folder = files.filter(
-      file => file.name.toLowerCase() === folderName.toLowerCase(),
-    );
-    console.log(
-      `Google Drive Folder ${process.env.GOOGLE_DRIVE_AUDIO_BOOK_FOLDER_NAME}:`,
-      folder,
-    );
-    return folder[0];
+    try {
+      const files = await this.listFilesOrFolders(false);
+      const folder = files.filter(
+        file => file.name.toLowerCase() === folderName.toLowerCase(),
+      );
+      return folder[0];
+    } catch (error) {
+      throw new HttpException(
+        `Unable to find google drive folder ${folderName}`,
+        HttpStatus.NO_CONTENT,
+      );
+    }
   }
 
   public async uploadFile(fileName, folderId = '') {
     try {
-      console.log(`GdriveService -> uploadFile -> fileName`, fileName);
-      const fileSize = fs.statSync(fileName).size;
+      const fileSize = await fs.statSync(fileName).size;
 
-      console.log(`GdriveService -> uploadFile -> drive`, drive);
-      const res = await drive.files.create(
-        {
-          requestBody: { name: fileName, parents: [folderId] },
-          media: {
-            body: fs.createReadStream(fileName),
-          },
+      const res = await this.googleClient.files.create({
+        requestBody: { name: fileName, parents: [folderId] },
+        media: {
+          body: fs.createReadStream(fileName),
         },
-        {
-          onUploadProgress: evt => {
-            const progress = (evt.bytesRead / fileSize) * 100;
-            readline.clearLine();
-            readline.cursorTo(0);
-            process.stdout.write(`${Math.round(progress)}% complete`);
-          },
-        },
-      );
+        // },
+        // {
+        //   onUploadProgress: evt => {
+        //     const progress = (evt.bytesRead / fileSize) * 100;
+        //     readline.clearLine();
+        //     readline.cursorTo(0);
+        //     process.stdout.write(`${Math.round(progress)}% complete`);
+        //   },
+      });
+      console.log(`GoogleDriveService -> uploadFile -> res`, res.data);
       return res.data;
     } catch (error) {
       console.log('error uploading file', error);
@@ -76,19 +77,28 @@ export class GdriveService {
   public async processDownloads() {
     const completedTransmissionDownloads = await this.getCompletedTransmissionDownloads();
     const googleDriveBookFolder = await this.findFolder();
+    console.log(
+      `GoogleDriveService -> processDownloads -> googleDriveBookFolder`,
+      googleDriveBookFolder,
+    );
 
     googleDriveBookFolder &&
-      completedTransmissionDownloads.forEach(async file => {
-        await this.uploadToGoogleDriveAndRemoveLocal(
+      completedTransmissionDownloads.map(async file => {
+        const response = await this.uploadToGoogleDriveAndRemoveLocal(
           file,
           googleDriveBookFolder,
         );
+        console.log(
+          `GoogleDriveService -> processDownloads -> response`,
+          response,
+        );
+        return response;
       });
   }
 
   private async getCompletedTransmissionDownloads() {
     console.log(
-      `GdriveService -> processDownloads -> directory`,
+      `googleDriveService -> processDownloads -> directory`,
       this.directory,
     );
     if (!fs.existsSync(this.directory)) {
@@ -105,18 +115,22 @@ export class GdriveService {
 
   private async uploadToGoogleDriveAndRemoveLocal(file, googleDriveBookFolder) {
     const upload = await this.uploadFile(
-      `${this.directory}/${file}`,
+      `${__dirname}/${file}`,
       googleDriveBookFolder.id,
     );
-    console.log('UploadedFile', upload);
 
-    const removeFile = await fs.unlinkSync(`${this.directory}/${file}`);
-    console.log('Deleted file', removeFile);
+    const removedFile = await fs.unlinkSync(`${this.directory}/${file}`);
+    console.log(
+      `GoogleDriveService -> uploadToGoogleDriveAndRemoveLocal -> removedFile`,
+      removedFile,
+    );
+    const response = { upload, removedFile };
+
+    return response;
   }
 
   private async listFilesOrFolders(file = true, folderId = null) {
     try {
-      const drive = google.drive({ version: 'v3' });
       const fileParams = {
         pageSize: 100,
         spaces: 'drive',
@@ -133,8 +147,14 @@ export class GdriveService {
       };
       // console.log('fileParams', fileParams);
       const driveParams = file ? fileParams : folderParams;
-      const res = await drive.files.list(driveParams);
+      console.log(
+        `GoogleDriveService -> listFilesOrFolders -> this.googleClient`,
+        this.googleClient,
+      );
+      const res = this.googleClient.files.list(driveParams);
+      console.log(`GoogleDriveService -> listFilesOrFolders -> res`, res);
       const files = res.data.files;
+      console.log(`GoogleDriveService -> listFilesOrFolders -> files`, files);
       return files;
     } catch (error) {
       console.log('error', error);

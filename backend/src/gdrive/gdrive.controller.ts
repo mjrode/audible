@@ -1,19 +1,19 @@
 import { Controller, Get, Res, HttpStatus, Param } from '@nestjs/common';
-import { GdriveService } from './google-drive.service';
 import * as url from 'url';
 import { pathToFileURL } from 'url';
 import { GdriveAuthService } from './auth.service';
+import { GoogleDriveService } from './google-drive.service';
 
 @Controller('gdrive')
 export class GdriveController {
   constructor(
-    private gdriveService: GdriveService,
+    private googleDriveService: GoogleDriveService,
     private gdriveAuthService: GdriveAuthService,
   ) {}
 
   @Get('files')
   async getFiles(@Res() res) {
-    const response = await this.gdriveService.getFiles();
+    const response = await this.googleDriveService.getFiles();
     return res.status(HttpStatus.OK).json(response);
   }
 
@@ -42,7 +42,7 @@ export class GdriveController {
 
   @Get('folder/:name')
   async findFolder(@Res() res, @Param('name') name) {
-    const response = await this.gdriveService.findFolder(name);
+    const response = await this.googleDriveService.findFolder(name);
     return res.status(HttpStatus.OK).json(response);
   }
 
@@ -58,7 +58,10 @@ export class GdriveController {
   async uploadFile(@Res() res, @Param('file') file) {
     const folderId = '1a7y0zs7BwiHXtqhQgaAMXWCZ0FnPs3bK';
     const filePath = '/Users/michaelrode/Downloads/IMG_1793.MOV';
-    const response = await this.gdriveService.uploadFile(filePath, folderId);
+    const response = await this.googleDriveService.uploadFile(
+      filePath,
+      folderId,
+    );
     return res.status(HttpStatus.OK).json(response);
   }
 }

@@ -6,6 +6,7 @@
   "license": "MIT",
   "scripts": {
     "build": "nest build",
+    "prebuild": "rimraf dist",
     "start:dev:db": "sh ./src/scripts/start-db.sh",
     "lint": "eslint . --cache --ext=.ts,.tsx,.js,.jsx",
     "lint-fix": "npm run lint -- --fix",

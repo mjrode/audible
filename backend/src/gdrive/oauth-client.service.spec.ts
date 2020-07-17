@@ -7,7 +7,7 @@ const record = setupRecorder();
 
 describe('OAuthClientService', () => {
   let oAuthClientService: OAuthClientService;
-  jest.mock('fs');
+  // jest.mock('fs');
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -24,7 +24,7 @@ describe('OAuthClientService', () => {
 
   it('Instantiates a new instance of OAuthClientService', () => {
     const expectedResponse =
-      '{"oAuthClient":{"_events":{},"_eventsCount":0,"transporter":{},"credentials":{},"certificateCache":{},"certificateExpiry":null,"certificateCacheFormat":"PEM","refreshTokenPromises":{},"_clientId":"780470202475-k4t146ff6bopjgekimobn82v6haqiv7f.apps.googleusercontent.com","_clientSecret":"4Kt0KEMNBfowkstThkcJq2RO","redirectUri":"urn:ietf:wg:oauth:2.0:oob","eagerRefreshThresholdMillis":300000}}';
+      '{"oAuthClient":{"_events":{},"_eventsCount":0,"transporter":{},"credentials":{},"certificateCache":{},"certificateExpiry":null,"certificateCacheFormat":"PEM","refreshTokenPromises":{},"_clientId":"749522153528-52g5t6ai71qvpq6mmi603uffq4ajso3h.apps.googleusercontent.com","_clientSecret":"V28IbVJjRp-dGU0WzewH7e8M","redirectUri":"urn:ietf:wg:oauth:2.0:oob","eagerRefreshThresholdMillis":300000}}';
 
     expect(JSON.stringify(oAuthClientService)).toEqual(expectedResponse);
   });
@@ -41,7 +41,7 @@ describe('OAuthClientService', () => {
         token_type: 'Bearer',
         expiry_date: 1593898438789,
       };
-      fs.writeFileSync(
+      await fs.writeFileSync(
         process.env.GOOGLE_DRIVE_CREDENTIALS_PATH,
         JSON.stringify(googleDriveCredentials),
       );
@@ -67,8 +67,8 @@ describe('OAuthClientService', () => {
     it('returns a url to fetch a token', () => {
       const response = oAuthClientService.getUrlForNewToken();
 
-      expect(JSON.stringify(response)).toMatch(
-        `https://accounts.google.com/o/oauth2/v2/auth?access_type=offline&prompt=consent&scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fdrive&response_type=code&client_id=780470202475-k4t146ff6bopjgekimobn82v6haqiv7f.apps.googleusercontent.com&redirect_uri=urn%3Aietf%3Awg%3Aoauth%3A2.0%3Aoob`,
+      expect(response).toMatch(
+        'https://accounts.google.com/o/oauth2/v2/auth?access_type=offline&prompt=consent&scope',
       );
     });
 

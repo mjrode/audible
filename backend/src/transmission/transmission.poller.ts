@@ -1,7 +1,7 @@
 import { Injectable, forwardRef, Inject } from '@nestjs/common';
 import { EventEmitter } from 'events';
 import { TransmissionService } from './transmission.service';
-import { GdriveService } from '../gdrive/google-drive.service';
+import { GoogleDriveService } from '../gdrive/google-drive.service';
 import { InjectEventEmitter } from '../utils/event-emitter.decorator';
 import { GdriveAuthService } from '../gdrive/auth.service';
 @Injectable()
@@ -10,8 +10,7 @@ export class TransmissionPoller {
     @InjectEventEmitter()
     private readonly emitter: EventEmitter,
     private readonly transmissionService: TransmissionService,
-    private readonly gdriveService: GdriveService,
-    private readonly gdriveAuthService: GdriveAuthService,
+    private readonly googleDriveService: GoogleDriveService,
   ) {}
 
   public async onModuleInit() {
@@ -30,7 +29,7 @@ export class TransmissionPoller {
     try {
       console.log('Checking torrent events');
       await this.transmissionService.moveCompletedTorrents();
-      await this.gdriveService.processDownloads();
+      await this.googleDriveService.processDownloads();
       this.pollTorrents();
     } catch (error) {
       console.log('Error polling torrents', error);

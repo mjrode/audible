@@ -18,7 +18,6 @@ async function bootstrap() {
   const server = app.getHttpServer();
   const router = server._events.request._router;
   console.log(expressListRoutes({}, 'API:', router));
-  console.log('NODE_ENV', envVars);
   await app.listen(5000);
 }
 bootstrap();

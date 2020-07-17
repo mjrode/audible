@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { google } from 'googleapis';
 import * as fs from 'fs';
 import { writeToFile } from '../utils/common';
@@ -7,37 +7,37 @@ const SCOPES = ['https://www.googleapis.com/auth/drive'];
 
 @Injectable()
 export class OAuthClientService {
-  private readonly oAuthClient: any;
+  private readonly googleClient: any;
 
   constructor() {
-    this.oAuthClient = new google.auth.OAuth2(
+    const clientParams = new google.auth.OAuth2(
       process.env.GOOGLE_DRIVE_ClIENT_ID,
       process.env.GOOGLE_DRIVE_CLIENT_SECRET,
       process.env.GOOGLE_DRIVE_REDIRECT_URIS?.split(',')[0],
     );
-    google.options({ auth: this.oAuthClient });
+    this.googleClient = google.options({ auth: clientParams });
   }
 
-  public async googleClient() {
+  public async setGoogleClient() {
     await this.loadGoogleDriveCredentials();
-    return this.oAuthClient;
+    return this.googleClient;
   }
 
   get authorizedGoogleClient(): boolean {
-    return !!this.oAuthClient.credentials;
+    return !!this.googleClient.credentials;
   }
 
   public async generateAuthCredentials(token: string) {
     try {
-      const googleDriveCredentials = await this.oAuthClient.getToken(token);
+      const googleDriveCredentials = await this.googleClient.getToken(token);
 
       await writeToFile(
         process.env.GOOGLE_DRIVE_CREDENTIALS_PATH,
         googleDriveCredentials.tokens,
       );
-      this.oAuthClient.setCredentials(googleDriveCredentials);
+      this.googleClient.setCredentials(googleDriveCredentials);
 
-      return this.oAuthClient;
+      return this.googleClient;
     } catch (error) {
       return {
         status: error.response.status,
@@ -48,7 +48,7 @@ export class OAuthClientService {
   }
 
   public getUrlForNewToken() {
-    return this.oAuthClient.generateAuthUrl({
+    return this.googleClient.generateAuthUrl({
       access_type: 'offline',
       prompt: 'consent',
       scope: SCOPES,
@@ -62,11 +62,15 @@ export class OAuthClientService {
         'utf8',
       );
 
-      return this.oAuthClient.setCredentials(
+      return this.googleClient.setCredentials(
         JSON.parse(googleDriveCredentials),
       );
     } catch (e) {
-      throw Error('Google Drive client is not authenticated');
+      console.log('Client is not authorized');
+      // throw new HttpException(
+      //   'Google Drive client is not authenticated',
+      //   HttpStatus.UNAUTHORIZED,
+      // );
     }
   }
 }
