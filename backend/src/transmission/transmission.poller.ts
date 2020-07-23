@@ -3,7 +3,6 @@ import { EventEmitter } from 'events';
 import { TransmissionService } from './transmission.service';
 import { GoogleDriveService } from '../gdrive/google-drive.service';
 import { InjectEventEmitter } from '../utils/event-emitter.decorator';
-import { GdriveAuthService } from '../gdrive/auth.service';
 @Injectable()
 export class TransmissionPoller {
   constructor(

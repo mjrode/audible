@@ -4,15 +4,12 @@ const shell = require('shelljs');
 import * as os from 'os';
 
 const readline = require('readline');
-import { google } from 'googleapis';
 import { OAuthClientService } from './oauth-client.service';
 import * as path from 'path';
-import { requestResponseLogger } from '../utils/request-response-logger';
 
 @Injectable()
 export class GoogleDriveService {
   directory: string;
-  oAuthClient;
   googleClient;
 
   constructor(private readonly oAuthClientService: OAuthClientService) {
@@ -24,8 +21,9 @@ export class GoogleDriveService {
   }
 
   public async onModuleInit() {
-    google.drive({ version: 'v3' });
-    this.googleClient = await this.oAuthClientService.setGoogleClient();
+    if (await this.oAuthClientService.authenticated()) {
+      this.googleClient = await this.oAuthClientService.authenticate();
+    }
   }
 
   public async getFiles(folderId = null, file = true) {

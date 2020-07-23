@@ -4,7 +4,6 @@ import { TransmissionController } from './transmission.controller';
 import { TransmissionService } from './transmission.service';
 import { TransmissionPoller } from './transmission.poller';
 import { GoogleDriveService } from '../gdrive/google-drive.service';
-import { GdriveAuthService } from '../gdrive/auth.service';
 import { OAuthClientService } from '../gdrive/oauth-client.service';
 
 @Module({
@@ -14,7 +13,6 @@ import { OAuthClientService } from '../gdrive/oauth-client.service';
     TransmissionPoller,
     GoogleDriveService,
     OAuthClientService,
-    GdriveAuthService,
   ],
 })
 export class TransmissionModule {}

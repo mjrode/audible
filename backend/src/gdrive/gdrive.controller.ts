@@ -1,14 +1,16 @@
-import { Controller, Get, Res, HttpStatus, Param } from '@nestjs/common';
+import { Controller, Get, Res, HttpStatus, Param, Req } from '@nestjs/common';
+import { google } from 'googleapis';
 import * as url from 'url';
 import { pathToFileURL } from 'url';
-import { GdriveAuthService } from './auth.service';
+
 import { GoogleDriveService } from './google-drive.service';
+import { OAuthClientService } from './oauth-client.service';
 
 @Controller('gdrive')
 export class GdriveController {
   constructor(
     private googleDriveService: GoogleDriveService,
-    private gdriveAuthService: GdriveAuthService,
+    private oAuthClientService: OAuthClientService,
   ) {}
 
   @Get('files')
@@ -19,25 +21,20 @@ export class GdriveController {
 
   @Get('authorize_credentials')
   async getAuthUrl(@Res() res) {
-    const response = await this.gdriveAuthService.urlForValidationCode();
+    const response = await this.oAuthClientService.getUrlForNewToken();
     return res.status(HttpStatus.OK).json(response);
   }
 
-  @Get('validation/:token')
+  @Get('authenticate/:token')
   async setAuthToken(@Res() res, @Param('token') token: string) {
-    const response = await this.gdriveAuthService.generateTokensAndWriteToFile(
+    const response = await this.oAuthClientService.generateAuthCredentials(
       token,
     );
     console.log(`GdriveController -> setAuthToken -> response`, response);
     if (response.status === HttpStatus.OK) {
-      return res.status(HttpStatus.OK).json({ token_set: true });
-    } else {
-      return res.status(response.status).json({
-        token_set: false,
-        error: response.error,
-        error_description: response.error_description,
-      });
+      return res.status(HttpStatus.OK).json(true);
     }
+    return res.status(HttpStatus.OK).json(false);
   }
 
   @Get('folder/:name')
@@ -46,12 +43,26 @@ export class GdriveController {
     return res.status(HttpStatus.OK).json(response);
   }
 
-  @Get('authorized')
+  @Get('auth/google/callback')
+  async googleCallback(@Req() req, @Res() res) {
+    const response = await this.oAuthClientService.generateAuthCredentials(
+      req.query.code,
+    );
+    if (response.status === HttpStatus.OK) {
+      return res.status(HttpStatus.OK).json(true);
+    }
+    return res.status(HttpStatus.OK).json(false);
+  }
+
+  @Get('login')
   async authorized(@Res() res) {
     console.log('Calling Authorized--------------');
-    const response = await this.gdriveAuthService.isClientAuthorized();
-    console.log('Response', response);
-    return res.status(HttpStatus.OK).json(response);
+    const authenticated = await this.oAuthClientService.authenticated();
+    if (authenticated) {
+      return res.status(HttpStatus.OK).json(true);
+    } else {
+      return res.status(HttpStatus.OK).json(false);
+    }
   }
 
   @Get('upload')

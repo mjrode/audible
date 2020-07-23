@@ -7,37 +7,70 @@ const SCOPES = ['https://www.googleapis.com/auth/drive'];
 
 @Injectable()
 export class OAuthClientService {
-  private readonly googleClient: any;
+  private oAuthClient: any;
 
   constructor() {
-    const clientParams = new google.auth.OAuth2(
+    this.oAuthClient = new google.auth.OAuth2(
       process.env.GOOGLE_DRIVE_ClIENT_ID,
       process.env.GOOGLE_DRIVE_CLIENT_SECRET,
-      process.env.GOOGLE_DRIVE_REDIRECT_URIS?.split(',')[0],
+      process.env.GOOGLE_DRIVE_REDIRECT_URIS,
     );
-    this.googleClient = google.options({ auth: clientParams });
   }
+  public async authenticate() {
+    console.log('Calling authenticate');
+    try {
+      await this.loadGoogleDriveCredentials();
 
-  public async setGoogleClient() {
-    await this.loadGoogleDriveCredentials();
-    return this.googleClient;
+      const tokenInfo = await this.oAuthClient.getTokenInfo(
+        this.oAuthClient.credentials.access_token,
+      );
+      return google.drive({ version: 'v2', auth: this.oAuthClient });
+    } catch (error) {
+      throw new HttpException(
+        'Google Drive client is not authenticated',
+        HttpStatus.UNAUTHORIZED,
+      );
+    }
   }
-
-  get authorizedGoogleClient(): boolean {
-    return !!this.googleClient.credentials;
+  public async authenticated() {
+    console.log('Calling authenticated');
+    try {
+      console.log(
+        `OAuthClientService -> authenticated -> this.oAuthClient`,
+        this.oAuthClient,
+      );
+      console.log(
+        `OAuthClientService -> authenticated -> this.oAuthClient.credentials.access_token`,
+        this.oAuthClient.credentials,
+      );
+      const tokenInfo = await this.oAuthClient.getTokenInfo(
+        this.oAuthClient.credentials.tokens.access_token,
+      );
+      console.log(
+        `OAuthClientService -> authenticated -> tokenInfo`,
+        tokenInfo,
+      );
+      return true;
+    } catch (error) {
+      console.log(
+        `OAuthClientService -> authenticated -> error`,
+        error.message,
+      );
+      return false;
+    }
   }
 
   public async generateAuthCredentials(token: string) {
     try {
-      const googleDriveCredentials = await this.googleClient.getToken(token);
+      const googleDriveCredentials = await this.oAuthClient.getToken(token);
 
       await writeToFile(
         process.env.GOOGLE_DRIVE_CREDENTIALS_PATH,
         googleDriveCredentials.tokens,
       );
-      this.googleClient.setCredentials(googleDriveCredentials);
+      this.oAuthClient.setCredentials(googleDriveCredentials);
 
-      return this.googleClient;
+      return { status: 200 };
     } catch (error) {
       return {
         status: error.response.status,
@@ -48,7 +81,7 @@ export class OAuthClientService {
   }
 
   public getUrlForNewToken() {
-    return this.googleClient.generateAuthUrl({
+    return this.oAuthClient.generateAuthUrl({
       access_type: 'offline',
       prompt: 'consent',
       scope: SCOPES,
@@ -62,15 +95,14 @@ export class OAuthClientService {
         'utf8',
       );
 
-      return this.googleClient.setCredentials(
+      return this.oAuthClient.setCredentials(
         JSON.parse(googleDriveCredentials),
       );
     } catch (e) {
-      console.log('Client is not authorized');
-      // throw new HttpException(
-      //   'Google Drive client is not authenticated',
-      //   HttpStatus.UNAUTHORIZED,
-      // );
+      throw new HttpException(
+        'Google Drive client is not authenticated',
+        HttpStatus.UNAUTHORIZED,
+      );
     }
   }
 }
