@@ -18,12 +18,14 @@ const NavBar: React.FC<any> = () => {
         <Toolbar>
           <Grid justify="space-between" container>
             <Grid item>
-              <Button>
-                <Avatar alt="Logo" src={audiobook} />
-                <Typography variant="h4" color="inherit">
-                  AudiBook
-                </Typography>
-              </Button>
+              <Link href="/">
+                <Button>
+                  <Avatar alt="Logo" src={audiobook} />
+                  <Typography variant="h4" color="inherit">
+                    AudiBook
+                  </Typography>
+                </Button>
+              </Link>
             </Grid>
           </Grid>
         </Toolbar>

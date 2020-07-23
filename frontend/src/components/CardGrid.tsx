@@ -6,7 +6,7 @@ type Props = { results };
 
 export function CardGrid(props: Props) {
   const { results } = props;
-  const setDisplayCardProps = result => ({
+  const setDisplayCardProps = (result) => ({
     title: result.title,
     url: result.url,
     image: result.image,
@@ -15,8 +15,9 @@ export function CardGrid(props: Props) {
 
   return (
     <Grid container spacing={3}>
-      {results.map(result => (
+      {results.map((result) => (
         <Grid
+          container
           item
           style={{ display: 'flex' }}
           key={result.title}

@@ -7,6 +7,9 @@ import {
 } from 'react-router-dom';
 import Home from './pages/Home';
 import NavBar from './components/NavBar';
+import GoogleAuth from './pages/GoogleAuth';
+import { Redirect } from 'react-router-dom';
+import OAuth from './pages/OAuth';
 import {
   Toolbar,
   Button,
@@ -18,6 +21,7 @@ import {
 export interface ISessionState {
   validateSession: boolean;
 }
+
 class App extends React.Component<
   {} & RouteComponentProps<any>,
   ISessionState
@@ -33,7 +37,13 @@ class App extends React.Component<
         <NavBar />
         <Container>
           <Switch>
-            <Route path={'/'} exact={true} component={Home} />
+            <Route path={'/login'} exact={true} component={GoogleAuth} />
+            <Route
+              path={'/auth/google/callback'}
+              exact={true}
+              component={OAuth}
+            />
+            <Route path={'/'} exact={false} component={Home} />
           </Switch>
         </Container>
       </div>

@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { withRouter } from 'react-router-dom';
+import { withRouter, Redirect, useHistory, Route } from 'react-router-dom';
 import SearchBox from 'src/components/SearchBox';
 import { IResults } from './PageInterfaces';
 import InfoAlert from '../components/InfoAlert';
 import { CardGrid } from 'src/components/CardGrid';
 import GoogleAuth from './GoogleAuth';
-import { checkIfClientIsAuthorized } from '../api/ApiRequests';
+import {
+  checkIfClientIsAuthorized,
+  setBackendGoogleAuthToken,
+} from '../api/ApiRequests';
 import { Grid } from '@material-ui/core';
+import queryString from 'query-string';
 
 const initialResultsState = () => {
   return JSON.parse(window.localStorage.getItem('results')) || [];
@@ -43,9 +47,24 @@ const Home: React.FC<any> = () => {
       console.log('Home client auth HOME', authorized);
       setAuthorized(authorized);
     });
-  }, [authorized]);
+  }, []);
 
   resetInvalidCache(results);
+
+  useEffect(() => {
+    let query = queryString.parse(location.search);
+    console.log(`location.pathname`, location.pathname);
+
+    const googleCallback = location.pathname.includes('/auth/google/callback');
+    if (googleCallback) {
+      const token = encodeURIComponent(query.code as any);
+      console.log(`token`, token);
+      setBackendGoogleAuthToken(token).then((response) => {
+        console.log(`response =======`, response);
+        setAuthorized(response);
+      });
+    }
+  }, []);
 
   useEffect(() => {
     window.localStorage.setItem('results', JSON.stringify(results));

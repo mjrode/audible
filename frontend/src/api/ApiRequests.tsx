@@ -69,7 +69,7 @@ export const getGoogleAuthUrl = async () => {
 export const setBackendGoogleAuthToken = async (token) => {
   console.log('Token', token);
   try {
-    const response = await fetch(apiUrl + `/api/gdrive/validation/${token}`, {
+    const response = await fetch(apiUrl + `/api/gdrive/authenticate/${token}`, {
       method: 'get',
       headers: new Headers({
         'Content-Type': 'application/json',
@@ -87,14 +87,13 @@ export const setBackendGoogleAuthToken = async (token) => {
 export const checkIfClientIsAuthorized = async () => {
   try {
     console.log('PROCESS ----', process.env.NODE_ENV);
-    const response = await fetch(apiUrl + '/api/gdrive/authorized', {
+    const response = await fetch(apiUrl + '/api/gdrive/login', {
       method: 'get',
       headers: new Headers({
         'Content-Type': 'application/json',
         Accept: 'application/json',
       }),
     });
-    console.log('Check if client auth api frontend', response);
     const json = await response.json();
     console.log('client is authorized', json);
     return json;

@@ -35,6 +35,7 @@ export class OAuthClientService {
   public async authenticated() {
     console.log('Calling authenticated');
     try {
+      await this.loadGoogleDriveCredentials();
       console.log(
         `OAuthClientService -> authenticated -> this.oAuthClient`,
         this.oAuthClient,
@@ -44,7 +45,7 @@ export class OAuthClientService {
         this.oAuthClient.credentials,
       );
       const tokenInfo = await this.oAuthClient.getTokenInfo(
-        this.oAuthClient.credentials.tokens.access_token,
+        this.oAuthClient.credentials.access_token,
       );
       console.log(
         `OAuthClientService -> authenticated -> tokenInfo`,
@@ -63,6 +64,10 @@ export class OAuthClientService {
   public async generateAuthCredentials(token: string) {
     try {
       const googleDriveCredentials = await this.oAuthClient.getToken(token);
+      console.log(
+        `OAuthClientService -> generateAuthCredentials -> googleDriveCredentials`,
+        googleDriveCredentials,
+      );
 
       await writeToFile(
         process.env.GOOGLE_DRIVE_CREDENTIALS_PATH,
@@ -99,10 +104,7 @@ export class OAuthClientService {
         JSON.parse(googleDriveCredentials),
       );
     } catch (e) {
-      throw new HttpException(
-        'Google Drive client is not authenticated',
-        HttpStatus.UNAUTHORIZED,
-      );
+      console.log(e.message);
     }
   }
 }
