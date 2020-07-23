@@ -15,9 +15,6 @@ async function bootstrap() {
     const [key, value] = entry;
     if (!key.includes('npm')) return [key, value];
   });
-  const server = app.getHttpServer();
-  const router = server._events.request._router;
-  console.log(expressListRoutes({}, 'API:', router));
   await app.listen(5000);
 }
 bootstrap();

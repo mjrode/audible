@@ -1,12 +1,22 @@
-import { Controller, Get, Res, HttpStatus, Param, Req } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Res,
+  HttpStatus,
+  Param,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { google } from 'googleapis';
 import * as url from 'url';
 import { pathToFileURL } from 'url';
 
 import { GoogleDriveService } from './google-drive.service';
 import { OAuthClientService } from './oauth-client.service';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('gdrive')
+@UseGuards(AuthGuard('google'))
 export class GdriveController {
   constructor(
     private googleDriveService: GoogleDriveService,

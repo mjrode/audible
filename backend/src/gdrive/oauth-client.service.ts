@@ -16,15 +16,12 @@ export class OAuthClientService {
       process.env.GOOGLE_DRIVE_REDIRECT_URIS,
     );
   }
-  public async authenticate() {
+  public async getAuthenticatedClient() {
     console.log('Calling authenticate');
     try {
       await this.loadGoogleDriveCredentials();
 
-      const tokenInfo = await this.oAuthClient.getTokenInfo(
-        this.oAuthClient.credentials.access_token,
-      );
-      return google.drive({ version: 'v2', auth: this.oAuthClient });
+      return google.drive({ version: 'v3', auth: this.oAuthClient });
     } catch (error) {
       throw new HttpException(
         'Google Drive client is not authenticated',
@@ -36,14 +33,7 @@ export class OAuthClientService {
     console.log('Calling authenticated');
     try {
       await this.loadGoogleDriveCredentials();
-      console.log(
-        `OAuthClientService -> authenticated -> this.oAuthClient`,
-        this.oAuthClient,
-      );
-      console.log(
-        `OAuthClientService -> authenticated -> this.oAuthClient.credentials.access_token`,
-        this.oAuthClient.credentials,
-      );
+
       const tokenInfo = await this.oAuthClient.getTokenInfo(
         this.oAuthClient.credentials.access_token,
       );

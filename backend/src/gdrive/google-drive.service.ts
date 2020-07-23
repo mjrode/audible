@@ -7,7 +7,7 @@ const readline = require('readline');
 import { OAuthClientService } from './oauth-client.service';
 import * as path from 'path';
 
-@Injectable()
+@Injectable({ scope: Scope.TRANSIENT })
 export class GoogleDriveService {
   directory: string;
   googleClient;
@@ -17,12 +17,14 @@ export class GoogleDriveService {
       os.homedir(),
       `${process.env.TRANSMISSION_DOWNLOAD_DIRECTORY}/complete`,
     );
+
     this.directory = dir;
   }
 
-  public async onModuleInit() {
+  public async initializeClient() {
     if (await this.oAuthClientService.authenticated()) {
-      this.googleClient = await this.oAuthClientService.authenticate();
+      console.log('Getting authed Google Client');
+      return (this.googleClient = await this.oAuthClientService.getAuthenticatedClient());
     }
   }
 
@@ -73,6 +75,7 @@ export class GoogleDriveService {
   }
 
   public async processDownloads() {
+    console.log('Calling process downloads');
     const completedTransmissionDownloads = await this.getCompletedTransmissionDownloads();
     const googleDriveBookFolder = await this.findFolder();
     console.log(
@@ -143,13 +146,13 @@ export class GoogleDriveService {
         spaces: 'drive',
         fields: 'files(id,name),nextPageToken',
       };
-      // console.log('fileParams', fileParams);
       const driveParams = file ? fileParams : folderParams;
       console.log(
-        `GoogleDriveService -> listFilesOrFolders -> this.googleClient`,
-        this.googleClient,
+        `GoogleDriveService -> listFilesOrFolders -> driveParams`,
+        driveParams,
       );
-      const res = this.googleClient.files.list(driveParams);
+
+      const res = await this.googleClient.files.list(driveParams);
       console.log(`GoogleDriveService -> listFilesOrFolders -> res`, res);
       const files = res.data.files;
       console.log(`GoogleDriveService -> listFilesOrFolders -> files`, files);
