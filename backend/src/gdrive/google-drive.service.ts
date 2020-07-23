@@ -10,7 +10,6 @@ import * as path from 'path';
 @Injectable({ scope: Scope.TRANSIENT })
 export class GoogleDriveService {
   directory: string;
-  googleClient;
 
   constructor(private readonly oAuthClientService: OAuthClientService) {
     const dir = path.join(
@@ -21,10 +20,10 @@ export class GoogleDriveService {
     this.directory = dir;
   }
 
-  public async initializeClient() {
+  public async getGoogleClient() {
     if (await this.oAuthClientService.authenticated()) {
       console.log('Getting authed Google Client');
-      return (this.googleClient = await this.oAuthClientService.getAuthenticatedClient());
+      return this.oAuthClientService.getAuthenticatedClient();
     }
   }
 
@@ -50,9 +49,10 @@ export class GoogleDriveService {
 
   public async uploadFile(fileName, folderId = '') {
     try {
+      const googleClient = await this.getGoogleClient();
       const fileSize = await fs.statSync(fileName).size;
 
-      const res = await this.googleClient.files.create({
+      const res = await googleClient.files.create({
         requestBody: { name: fileName, parents: [folderId] },
         media: {
           body: fs.createReadStream(fileName),
@@ -151,8 +151,8 @@ export class GoogleDriveService {
         `GoogleDriveService -> listFilesOrFolders -> driveParams`,
         driveParams,
       );
-
-      const res = await this.googleClient.files.list(driveParams);
+      const googleClient = await this.getGoogleClient();
+      const res = await googleClient.files.list(driveParams);
       console.log(`GoogleDriveService -> listFilesOrFolders -> res`, res);
       const files = res.data.files;
       console.log(`GoogleDriveService -> listFilesOrFolders -> files`, files);

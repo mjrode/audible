@@ -16,7 +16,6 @@ import { OAuthClientService } from './oauth-client.service';
 import { AuthGuard } from '@nestjs/passport';
 
 @Controller('gdrive')
-@UseGuards(AuthGuard('google'))
 export class GdriveController {
   constructor(
     private googleDriveService: GoogleDriveService,
