@@ -1,0 +1,32 @@
+language: generic
+sudo: required
+
+services:
+  - docker
+
+# before_install:
+#   - docker build -t mjrode/audible -f Dockerfile.dev .
+
+# script:
+#   - docker run -e CI=true mjrode/audible npm run test
+after_success:
+  - docker build -t mjrode/audible-client ./client
+  - docker build -t mjrode/audible-api ./api
+  - docker build -t mjrode/audible-nginx ./nginx
+
+  # Login to Docker CI
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
+  - docker push mjrode/audible-api
+  - docker push mjrode/audible-client
+  - docker push mjrode/audible-nginx
+# deploy:
+#   provider: elasticbeanstalk
+#   region: 'us-west-2'
+#   app: 'docker-react'
+#   env: 'DockerReact-env'
+#   bucket_name: 'elasticbeanstalk-us-west-2-346528912368'
+#   bucket_path: 'docker-react'
+#   on:
+#     branch: master
+#   access_key_id: $AWS_ACCESS_KEY
+#   secret_access_key: $AWS_SECRET_KEY
