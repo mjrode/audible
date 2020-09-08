@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { withRouter, Redirect, useHistory, Route } from 'react-router-dom';
-import SearchBox from 'src/components/SearchBox';
+import SearchBox from '../components/SearchBox';
 import { IResults } from './PageInterfaces';
 import InfoAlert from '../components/InfoAlert';
-import { CardGrid } from 'src/components/CardGrid';
+import { CardGrid } from '../components/CardGrid';
 import GoogleAuth from './GoogleAuth';
 import {
   checkIfClientIsAuthorized,

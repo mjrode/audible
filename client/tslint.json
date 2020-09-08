@@ -15,5 +15,8 @@
     "no-return-await": { "severity": "warning" },
     "array-type": false,
     "variable-name": [true, "ban-keywords", "check-format", "allow-pascal-case"]
+  },
+  "jsRules": {
+    "no-empty": true
   }
 }
