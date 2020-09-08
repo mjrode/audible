@@ -16,14 +16,14 @@ after_success:
   - docker push mjrode/audible-api
   - docker push mjrode/audible-client
   - docker push mjrode/audible-nginx
-# deploy:
-#   provider: elasticbeanstalk
-#   region: 'us-west-2'
-#   app: 'docker-react'
-#   env: 'DockerReact-env'
-#   bucket_name: 'elasticbeanstalk-us-west-2-346528912368'
-#   bucket_path: 'docker-react'
-#   on:
-#     branch: master
-#   access_key_id: $AWS_ACCESS_KEY
-#   secret_access_key: $AWS_SECRET_KEY
+deploy:
+  provider: elasticbeanstalk
+  region: 'us-west-2'
+  app: 'audible'
+  env: 'Audible-env'
+  bucket_name: 'elasticbeanstalk-us-west-2-346528912368'
+  bucket_path: 'audible'
+  on:
+    branch: master
+  access_key_id: $AWS_ACCESS_KEY
+  secret_access_key: $AWS_SECRET_KEY
