@@ -13,11 +13,13 @@ export class TransmissionPoller {
   ) {}
 
   public async onModuleInit() {
-    console.log('Polling module initiated');
-    this.emitter.on(
-      'check-torrents',
-      async () => await this.handleCheckTorrentsEvent(),
-    );
+    if (process.env.ENABLE_POLLING) {
+      console.log('Polling module initiated');
+      this.emitter.on(
+        'check-torrents',
+        async () => await this.handleCheckTorrentsEvent(),
+      );
+    }
   }
 
   async pollTorrents(): Promise<any> {

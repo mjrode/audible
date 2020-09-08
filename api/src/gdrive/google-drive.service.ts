@@ -7,7 +7,7 @@ const readline = require('readline');
 import { OAuthClientService } from './oauth-client.service';
 import * as path from 'path';
 
-@Injectable({ scope: Scope.TRANSIENT })
+@Injectable()
 export class GoogleDriveService {
   directory: string;
 
@@ -35,9 +35,9 @@ export class GoogleDriveService {
     const folderName = name || process.env.GOOGLE_DRIVE_AUDIO_BOOK_FOLDER_NAME;
     try {
       const files = await this.listFilesOrFolders(false);
-      const folder = files.filter(
-        file => file.name.toLowerCase() === folderName.toLowerCase(),
-      );
+      const folder = files.filter(file => {
+        return file.name.toLowerCase() === folderName.toLowerCase();
+      });
       return folder[0];
     } catch (error) {
       throw new HttpException(
@@ -77,6 +77,10 @@ export class GoogleDriveService {
   public async processDownloads() {
     console.log('Calling process downloads');
     const completedTransmissionDownloads = await this.getCompletedTransmissionDownloads();
+    console.log(
+      `GoogleDriveService -> processDownloads -> completedTransmissionDownloads`,
+      completedTransmissionDownloads,
+    );
     const googleDriveBookFolder = await this.findFolder();
     console.log(
       `GoogleDriveService -> processDownloads -> googleDriveBookFolder`,
@@ -119,6 +123,10 @@ export class GoogleDriveService {
       `${__dirname}/${file}`,
       googleDriveBookFolder.id,
     );
+    console.log(
+      `GoogleDriveService -> uploadToGoogleDriveAndRemoveLocal -> upload`,
+      upload,
+    );
 
     const removedFile = await fs.unlinkSync(`${this.directory}/${file}`);
     console.log(
@@ -133,10 +141,12 @@ export class GoogleDriveService {
   private async listFilesOrFolders(file = true, folderId = null) {
     try {
       const fileParams = {
+        q: "mimeType='audio/mpeg'",
         pageSize: 100,
         spaces: 'drive',
         fields: 'files(id,name),nextPageToken',
       };
+
       const query = folderId
         ? `mimeType="application/vnd.google-apps.folder" and "${folderId}" in parents and trashed=false`
         : 'mimeType="application/vnd.google-apps.folder"';
@@ -147,15 +157,10 @@ export class GoogleDriveService {
         fields: 'files(id,name),nextPageToken',
       };
       const driveParams = file ? fileParams : folderParams;
-      console.log(
-        `GoogleDriveService -> listFilesOrFolders -> driveParams`,
-        driveParams,
-      );
+
       const googleClient = await this.getGoogleClient();
       const res = await googleClient.files.list(driveParams);
-      console.log(`GoogleDriveService -> listFilesOrFolders -> res`, res);
       const files = res.data.files;
-      console.log(`GoogleDriveService -> listFilesOrFolders -> files`, files);
       return files;
     } catch (error) {
       console.log('error', error);

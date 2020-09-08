@@ -9,7 +9,6 @@ async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
   app.use('*', cors());
-  app.setGlobalPrefix('api');
 
   const envVars = Object.entries(process.env).filter(entry => {
     const [key, value] = entry;

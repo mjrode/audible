@@ -16,6 +16,12 @@ export class TransmissionController {
     return res.status(HttpStatus.OK).json(stats);
   }
 
+  @Get('completed')
+  async getCompleted(@Res() res) {
+    const torrents = await this.transmissionService.completedAudioBookTorrents();
+    return res.status(HttpStatus.OK).json(torrents);
+  }
+
   @Get('details')
   async getAllDetails(@Res() res) {
     const response = await this.transmissionService.getTorrentDetails();

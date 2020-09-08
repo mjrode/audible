@@ -1,41 +1,39 @@
-version: "3.7"
-
+version: '3'
 services:
-  backend:
-    build: ./backend
-    volumes:
-      - ./backend:/usr/src/app/backend
-      - /backend/usr/src/app/node_modules
-
-    ports:
-      - "52000:5000"
-    expose:
-      - "5000"
-
-    networks:
-      - audible
-    command: npm run start:dev
-
-  frontend:
-    build: ./frontend
-    volumes:
-      - ./frontend:/usr/src/app/frontend
-      - /frontend/usr/src/app/node_modules
-    networks:
-      - audible
+  postgres:
+    image: 'postgres:latest'
+    environment:
+      - POSTGRES_PASSWORD=postgres_password
+  nginx:
+    restart: always
     depends_on:
-      - backend
+      - api
+      - client
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile.dev
     ports:
-      - "53000:3000"
-    command: npm start
-  # db:
-  #   image: postgres:9.6
-  #   restart: always
-  #   environment:
-  #     POSTGRES_USER: postgres
-  #     POSTGRES_PASSWORD: password
-  #   ports:
-  #     - 56000:5432
-networks:
-  audible:
-    driver: bridge
+      - '3000:80'
+  api:
+    depends_on:
+      - postgres
+    build:
+      context: ./api
+      dockerfile: Dockerfile.dev
+    volumes:
+      - /app/node_modules
+      - ./api:/app
+    environment:
+      - PGUSER=postgres
+      - PGHOST=postgres
+      - PGDATABASE=postgres
+      - PGPASSWORD=postgres_password
+      - PGPORT=5432
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile.dev
+    volumes:
+      - /app/node_modules
+      - ./client:/app
+    stdin_open: true

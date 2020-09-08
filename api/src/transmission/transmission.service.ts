@@ -111,7 +111,7 @@ export class TransmissionService {
     audiobooks,
     location = this.transmissionDownloadDirectory() + '/complete',
   ): Promise<any> {
-    console.log('Audibooks in move torrent', audiobooks);
+    console.log('Audiobooks in move torrent', audiobooks);
     if (audiobooks.length < 1) {
       console.log('No completed downloads to move');
       return [];

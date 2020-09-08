@@ -37,10 +37,7 @@ export class OAuthClientService {
       const tokenInfo = await this.oAuthClient.getTokenInfo(
         this.oAuthClient.credentials.access_token,
       );
-      console.log(
-        `OAuthClientService -> authenticated -> tokenInfo`,
-        tokenInfo,
-      );
+
       return true;
     } catch (error) {
       console.log(
@@ -51,12 +48,17 @@ export class OAuthClientService {
     }
   }
 
-  public async generateAuthCredentials(token: string) {
+  public async generateAuthCredentials(token = null) {
+    console.log(
+      `OAuthClientService -> generateAuthCredentials -> token`,
+      this.oAuthClient.credentials,
+    );
     try {
-      const googleDriveCredentials = await this.oAuthClient.getToken(token);
-      console.log(
-        `OAuthClientService -> generateAuthCredentials -> googleDriveCredentials`,
-        googleDriveCredentials,
+      await this.loadGoogleDriveCredentials();
+      const refreshToken = token || this.oAuthClient.credentials.access_token;
+
+      const googleDriveCredentials = await this.oAuthClient.getToken(
+        refreshToken,
       );
 
       await writeToFile(

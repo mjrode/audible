@@ -15,7 +15,7 @@ export const backendRequest: any = async (options) => {
 export const downloadBook = async (infoHash) => {
   try {
     console.log(`apiUrl`, apiUrl);
-    const response = await fetch(apiUrl + `/api/transmission/add/${infoHash}`, {
+    const response = await fetch(`/api/transmission/add/${infoHash}`, {
       method: 'get',
       headers: new Headers({
         'Content-Type': 'application/json',
@@ -34,7 +34,7 @@ export const downloadBook = async (infoHash) => {
 export const getDetails = async (url) => {
   try {
     const response = await fetch(
-      apiUrl + `/api/audiobay/details/${encodeURIComponent(url)}`,
+      `/api/audiobay/details/${encodeURIComponent(url)}`,
       {
         method: 'get',
         headers: new Headers({
@@ -52,7 +52,7 @@ export const getDetails = async (url) => {
 
 export const getGoogleAuthUrl = async () => {
   try {
-    const response = await fetch(apiUrl + `/api/gdrive/authorize_credentials`, {
+    const response = await fetch(`/api/gdrive/authorize_credentials`, {
       method: 'get',
       headers: new Headers({
         'Content-Type': 'application/json',
@@ -69,7 +69,7 @@ export const getGoogleAuthUrl = async () => {
 export const setBackendGoogleAuthToken = async (token) => {
   console.log('Token', token);
   try {
-    const response = await fetch(apiUrl + `/api/gdrive/authenticate/${token}`, {
+    const response = await fetch(`/api/gdrive/authenticate/${token}`, {
       method: 'get',
       headers: new Headers({
         'Content-Type': 'application/json',
@@ -87,7 +87,7 @@ export const setBackendGoogleAuthToken = async (token) => {
 export const checkIfClientIsAuthorized = async () => {
   try {
     console.log('PROCESS ----', process.env.NODE_ENV);
-    const response = await fetch(apiUrl + '/api/gdrive/login', {
+    const response = await fetch('/api/gdrive/login', {
       method: 'get',
       headers: new Headers({
         'Content-Type': 'application/json',

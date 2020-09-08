@@ -46,6 +46,16 @@ export class GdriveController {
     return res.status(HttpStatus.OK).json(false);
   }
 
+  @Get('refresh')
+  async refreshToken(@Res() res, @Param('token') token: string) {
+    const response = await this.oAuthClientService.generateAuthCredentials();
+    console.log(`GdriveController -> setAuthToken -> response`, response);
+    if (response.status === HttpStatus.OK) {
+      return res.status(HttpStatus.OK).json(true);
+    }
+    return res.status(HttpStatus.OK).json(false);
+  }
+
   @Get('folder/:name')
   async findFolder(@Res() res, @Param('name') name) {
     const response = await this.googleDriveService.findFolder(name);

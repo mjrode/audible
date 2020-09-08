@@ -10,6 +10,7 @@ import NavBar from './components/NavBar';
 import GoogleAuth from './pages/GoogleAuth';
 import { Redirect } from 'react-router-dom';
 import OAuth from './pages/OAuth';
+import GoogleDrive from './pages/GoogleDrive';
 import {
   Toolbar,
   Button,
@@ -38,6 +39,11 @@ class App extends React.Component<
         <Container>
           <Switch>
             <Route path={'/login'} exact={true} component={GoogleAuth} />
+            <Route
+              path={'/google-drive'}
+              exact={true}
+              component={GoogleDrive}
+            />
             <Route
               path={'/auth/google/callback'}
               exact={true}
