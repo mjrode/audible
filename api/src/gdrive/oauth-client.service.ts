@@ -55,7 +55,8 @@ export class OAuthClientService {
     );
     try {
       await this.loadGoogleDriveCredentials();
-      const refreshToken = token || this.oAuthClient.credentials.access_token;
+      const refreshToken =
+        decodeURIComponent(token) || this.oAuthClient.credentials.access_token;
 
       const googleDriveCredentials = await this.oAuthClient.getToken(
         refreshToken,
@@ -66,6 +67,10 @@ export class OAuthClientService {
         googleDriveCredentials.tokens,
       );
       this.oAuthClient.setCredentials(googleDriveCredentials);
+      console.log(
+        `OAuthClientService -> generateAuthCredentials -> googleDriveCredentials`,
+        googleDriveCredentials,
+      );
 
       return { status: 200 };
     } catch (error) {

@@ -14,7 +14,6 @@ const transmissionConfig = () => {
     username: process.env.TRANSMISSION_USERNAME,
     password: process.env.TRANSMISSION_PASSWORD,
   };
-  console.log(`transmissionConfig -> localClientOptions`, localClientOptions);
   return Object.assign(localClientOptions, clientOptions);
 };
 

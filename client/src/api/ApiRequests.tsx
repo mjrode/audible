@@ -60,6 +60,7 @@ export const getGoogleAuthUrl = async () => {
       }),
     });
     const json = await response.json();
+    console.log(`getGoogleAuthUrl -> json`, json);
     return json;
   } catch (ex) {
     return false;
@@ -69,13 +70,16 @@ export const getGoogleAuthUrl = async () => {
 export const setBackendGoogleAuthToken = async (token) => {
   console.log('Token', token);
   try {
-    const response = await fetch(`/api/gdrive/authenticate/${token}`, {
-      method: 'get',
-      headers: new Headers({
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-      }),
-    });
+    const response = await fetch(
+      `/api/gdrive/authenticate/${encodeURIComponent(token)}`,
+      {
+        method: 'get',
+        headers: new Headers({
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        }),
+      },
+    );
     const json = await response.json();
     console.log('authResponse', json);
     return json;

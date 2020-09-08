@@ -76,11 +76,16 @@ export class GoogleDriveService {
 
   public async processDownloads() {
     console.log('Calling process downloads');
-    const completedTransmissionDownloads = await this.getCompletedTransmissionDownloads();
     console.log(
-      `GoogleDriveService -> processDownloads -> completedTransmissionDownloads`,
-      completedTransmissionDownloads,
+      `OAuthClientService -> constructor -> process.env.GOOGLE_DRIVE_ClIENT_ID`,
+      process.env.GOOGLE_DRIVE_ClIENT_ID,
     );
+    console.log(
+      `OAuthClientService -> constructor ->   process.env.GOOGLE_DRIVE_REDIRECT_URIS`,
+      process.env.ENABLE_POLLING,
+    );
+    const completedTransmissionDownloads = await this.getCompletedTransmissionDownloads();
+
     const googleDriveBookFolder = await this.findFolder();
     console.log(
       `GoogleDriveService -> processDownloads -> googleDriveBookFolder`,

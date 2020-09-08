@@ -10,6 +10,7 @@ export default function OAuth() {
   const [authorized, setAuthorized] = useState(false);
   useEffect(() => {
     let query = queryString.parse(location.search);
+    console.log(`OAuth -> query`, query);
 
     //TODO: Why is the question mark not being parsed
     const token = encodeURIComponent(query['?code'] as any);

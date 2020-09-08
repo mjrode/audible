@@ -36,6 +36,7 @@ export class GdriveController {
 
   @Get('authenticate/:token')
   async setAuthToken(@Res() res, @Param('token') token: string) {
+    console.log(`GdriveController -> setAuthToken -> token`, token);
     const response = await this.oAuthClientService.generateAuthCredentials(
       token,
     );

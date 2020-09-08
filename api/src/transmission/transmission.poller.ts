@@ -13,7 +13,7 @@ export class TransmissionPoller {
   ) {}
 
   public async onModuleInit() {
-    if (process.env.ENABLE_POLLING) {
+    if (process.env.ENABLE_POLLING === 'true') {
       console.log('Polling module initiated');
       this.emitter.on(
         'check-torrents',
