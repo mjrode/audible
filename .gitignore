@@ -23,3 +23,4 @@ yarn-error.log*
 # webstorm files
 .idea/
 dist/
+notes/home-server-docker-compose.yml
