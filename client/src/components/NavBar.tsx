@@ -22,7 +22,7 @@ const NavBar: React.FC<any> = () => {
                 <Button>
                   <Avatar alt="Logo" src={audiobook} />
                   <Typography variant="h4" color="inherit">
-                    AudiBook
+                    AudioBook
                   </Typography>
                 </Button>
               </Link>
