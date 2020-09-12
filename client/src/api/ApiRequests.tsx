@@ -1,9 +1,11 @@
 import axios from 'axios';
 const apiUrl = process.env.REACT_APP_PROXY_SERVER;
+const urlParser = require('url');
+const querystring = require('querystring');
 
 export const backendRequest: any = async (options) => {
   const axiosOptions = {
-    url: `${apiUrl}${options.url}`,
+    url: `${options.url}`,
     method: options.method || 'get',
     ...(options.data && { data: options.data }),
   };
@@ -30,26 +32,6 @@ export const downloadBook = async (infoHash) => {
     return { status: false, body: 'Unable to process download' };
   }
 };
-
-export const getDetails = async (url) => {
-  try {
-    const response = await fetch(
-      `/api/audiobay/details/${encodeURIComponent(url)}`,
-      {
-        method: 'get',
-        headers: new Headers({
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-        }),
-      },
-    );
-    const json = await response.json();
-    return json[0];
-  } catch (ex) {
-    return false;
-  }
-};
-
 export const getGoogleAuthUrl = async () => {
   try {
     const response = await fetch(`/api/gdrive/authorize_credentials`, {

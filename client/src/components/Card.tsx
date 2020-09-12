@@ -9,7 +9,7 @@ import CardActions from '@material-ui/core/CardActions';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 import { Grid } from '@material-ui/core';
-import { getDetails, downloadBook } from '../api/ApiRequests';
+import { downloadBook, backendRequest } from '../api/ApiRequests';
 import InfoAlert from './InfoAlert';
 
 export interface IDownloadResponse {
@@ -28,11 +28,13 @@ const DisplayCard: React.FC<any> = ({ title, url, image, details }) => {
   const [alertText, setAlertText] = useState('');
 
   const handleDownloadClick = async () => {
-    const details: any = await getDetails(url);
+    const { data } = await backendRequest({
+      url: `/api/audiobay/details`,
+      method: 'post',
+      data: { url },
+    });
 
-    const response: IDownloadResponse | any = await downloadBook(
-      details.infoHash,
-    );
+    const response: IDownloadResponse | any = await downloadBook(data.infoHash);
 
     setOpenAlert(true);
     if (response.status) {
@@ -42,7 +44,7 @@ const DisplayCard: React.FC<any> = ({ title, url, image, details }) => {
     }
   };
 
-  const useStyles = makeStyles(theme => ({
+  const useStyles = makeStyles((theme) => ({
     root: {
       maxWidth: 500,
     },

@@ -17,11 +17,10 @@ export class OAuthClientService {
     );
   }
   public async getAuthenticatedClient() {
-    console.log('Calling authenticate');
     try {
       await this.loadGoogleDriveCredentials();
-
-      return google.drive({ version: 'v3', auth: this.oAuthClient });
+      google.options({ auth: this.oAuthClient });
+      return google.drive({ version: 'v3' });
     } catch (error) {
       throw new HttpException(
         'Google Drive client is not authenticated',

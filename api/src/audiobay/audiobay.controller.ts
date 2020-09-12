@@ -27,9 +27,9 @@ export class AudioBayController {
     return res.status(HttpStatus.OK).json(results);
   }
 
-  @Get('details/:url')
-  async bookDetails(@Res() res, @Param('url') url) {
-    const results = await this.audioBayService.bookDetails(url);
-    return res.status(HttpStatus.OK).json(results);
+  @Post('details')
+  async bookDetails(@Res() res, @Body() data) {
+    const results = await this.audioBayService.bookDetails(data.url);
+    return res.status(HttpStatus.OK).json(results[0]);
   }
 }

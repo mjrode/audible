@@ -52,7 +52,7 @@ export class GoogleDriveService {
       const googleClient = await this.getGoogleClient();
       const fileSize = await fs.statSync(fileName).size;
 
-      const res = await googleClient.files.create({
+      await googleClient.files.create({
         requestBody: { name: fileName, parents: [folderId] },
         media: {
           body: fs.createReadStream(fileName),
@@ -66,8 +66,6 @@ export class GoogleDriveService {
         //     process.stdout.write(`${Math.round(progress)}% complete`);
         //   },
       });
-      console.log(`GoogleDriveService -> uploadFile -> res`, res.data);
-      return res.data;
     } catch (error) {
       console.log('error uploading file', error);
       return [];
@@ -164,7 +162,7 @@ export class GoogleDriveService {
       const driveParams = file ? fileParams : folderParams;
 
       const googleClient = await this.getGoogleClient();
-      const res = await googleClient.files.list(driveParams);
+      const res = (await googleClient.files.list(driveParams)) as any;
       const files = res.data.files;
       return files;
     } catch (error) {
