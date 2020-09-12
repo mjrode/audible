@@ -3,3 +3,12 @@ build
 .dockerignore
 Dockerfile
 Dockerfile.prod
+node_modules
+npm-debug.log
+Dockerfile*
+docker-compose*
+.git
+.gitignore
+README.md
+LICENSE
+.vscode
