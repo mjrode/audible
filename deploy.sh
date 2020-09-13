@@ -1,10 +1,11 @@
 # Build images
-docker build -t mjrode/audible-client:latest -f ./client/Dockerfile -t mjrode/audible:$SHA ./client
-docker build -t mjrode/audible-api:latest -f ./api/Dockerfile -t mjrode/audible:$SHA ./api
+docker build -t mjrode/audible-client:latest -t mjrode/audible:$SHA -f ./client/Dockerfile ./client
+docker build -t mjrode/audible-api:latest -t mjrode/audible:$SHA -f ./api/Dockerfile ./api
 
 # Push images
 docker push mjrode/audible-api:latest
 docker push mjrode/audible-client:latest
+
 docker push mjrode/audible-api:$SHA
 docker push mjrode/audible-client:$SHA
 
