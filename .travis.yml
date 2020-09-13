@@ -3,6 +3,10 @@ sudo: required
 
 services:
   - docker
+env:
+  global:
+    - SHA=$(git rev-parse HEAD)
+    - CLOUDSDK_CORE_DISABLE_PROMPTS=1
 
 before_install:
   - openssl aes-256-cbc -K $encrypted_9f3b5599b056_key -iv $encrypted_9f3b5599b056_iv -in service-account.json.enc -out service-account.json -d
@@ -10,25 +14,13 @@ before_install:
   - source $HOME/google-cloud-sdk/path.bash.inc
   - gcloud components update kubectl
   - gcloud auth activate-service-account --key-file service-account.json
-
-after_success:
-  - docker build -t mjrode/audible-client ./client
-  - docker build -t mjrode/audible-api ./api
-  - docker build -t mjrode/audible-nginx ./nginx
-
-  # Login to Docker CI
+  - gcloud config set project audible-289402
+  - gcloud config set compute/zone us-central1-c
+  - gcloud container clusters get-credentials audible-google-cloud
   - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
-  - docker push mjrode/audible-api
-  - docker push mjrode/audible-client
-  - docker push mjrode/audible-nginx
+
 deploy:
-  provider: elasticbeanstalk
-  region: 'us-west-2'
-  app: 'audible'
-  env: 'Audible-env'
-  bucket_name: 'elasticbeanstalk-us-west-2-346528912368'
-  bucket_path: 'audible'
+  provider: script
+  script: bash ./deploy.sh
   on:
     branch: master
-  access_key_id: $AWS_ACCESS_KEY
-  secret_access_key: $AWS_SECRET_KEY
