@@ -48,7 +48,7 @@ export default function GoogleAuth() {
             color="primary"
             style={{ minHeight: '5rem' }}
           >
-            Sign in with Google Drive
+            Sign in with Google Drive!
           </Button>
         </Link>
       </Box>

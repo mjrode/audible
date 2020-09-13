@@ -1,0 +1,27 @@
+apiVersion: skaffold/v2beta4
+kind: Config
+metadata:
+  name: audible
+build:
+  artifacts:
+    - image: mjrode/audible-api
+      context: api
+      docker:
+        dockerfile: Dockerfile.dev
+    - image: mjrode/audible-client-k8s
+      context: client
+      docker:
+        dockerfile: Dockerfile.k8s
+deploy:
+  kubectl:
+    manifests:
+      - k8s/api-cluster-ip-service.yaml
+      - k8s/api-deployment.yaml
+      - k8s/certificate.yaml
+      - k8s/client-cluster-ip-service.yaml
+      - k8s/client-deployment.yaml
+      - k8s/database-persistent-volume-claim.yaml
+      - k8s/ingress-service.yaml
+      - k8s/issuer.yaml
+      - k8s/postgres-cluster-ip-service.yaml
+      - k8s/postgres-deployment.yaml
