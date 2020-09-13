@@ -43,7 +43,7 @@ spec:
             - name: GOOGLE_DRIVE_AUTH_PROVIDER_X509_CERT_URL
               value: https://www.googleapis.com/oauth2/v1/certs
             - name: GOOGLE_DRIVE_REDIRECT_URIS
-              value: http://192.168.64.2/auth/google/callback
+              value: https://audiupload.us/auth/google/callback
             - name: GOOGLE_DRIVE_AUDIO_BOOK_FOLDER_NAME
               value: AudioBooks
             - name: GOOGLE_DRIVE_CREDENTIALS_PATH
