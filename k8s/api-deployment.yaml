@@ -1,0 +1,74 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      component: api
+  template:
+    metadata:
+      labels:
+        component: api
+    spec:
+      containers:
+        - name: api
+          image: mjrode/audible-api
+          env:
+            - name: TRANSMISSION_HOST
+              value: torrent.mjrflix.com
+            - name: PGUSER
+              value: postgres
+            - name: PGHOST
+              value: postgres-cluster-ip-service
+            - name: PGPORT
+              value: '5432'
+            - name: PGDATABASE
+              value: postgres
+            - name: TRANSMISSION_PORT
+              value: '443'
+            - name: TRANSMISSION_SSL
+              value: 'true'
+            - name: TRANSMISSION_USERNAME
+              value: mjrode
+            - name: GOOGLE_DRIVE_ClIENT_ID
+              value: 780470202475-k4t146ff6bopjgekimobn82v6haqiv7f.apps.googleusercontent.com
+            - name: GOOGLE_DRIVE_PROJECT_ID
+              value: quickstart-1583205546909
+            - name: GOOGLE_DRIVE_AUTH_URI
+              value: https://accounts.google.com/o/oauth2/auth
+            - name: GOOGLE_DRIVE_TOKEN_URI
+              value: https://oauth2.googleapis.com/token
+            - name: GOOGLE_DRIVE_AUTH_PROVIDER_X509_CERT_URL
+              value: https://www.googleapis.com/oauth2/v1/certs
+            - name: GOOGLE_DRIVE_REDIRECT_URIS
+              value: http://192.168.64.2/auth/google/callback
+            - name: GOOGLE_DRIVE_AUDIO_BOOK_FOLDER_NAME
+              value: AudioBooks
+            - name: GOOGLE_DRIVE_CREDENTIALS_PATH
+              value: '.google_drive_credentials.json'
+            - name: ENABLE_REQUEST_LOGGING
+              value: 'true'
+            - name: ENABLE_RESPONSE_DATA_LOGGING
+              value: 'true'
+            - name: ENABLE_POLLING
+              value: 'true'
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: pgpassword
+                  key: PGPASSWORD
+            - name: TRANSMISSION_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: transmissionpassword
+                  key: TRANSMISSION_PASSWORD
+            - name: GOOGLE_DRIVE_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: googledriveclientsecret
+                  key: GOOGLE_DRIVE_CLIENT_SECRET
+
+          ports:
+            - containerPort: 5000

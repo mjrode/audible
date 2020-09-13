@@ -24,3 +24,7 @@ yarn-error.log*
 .idea/
 dist/
 notes/home-server-docker-compose.yml
+.vscode
+k8s/k8s-secrets.txt
+k8s-backup/
+service-account.json
