@@ -12,8 +12,6 @@ import {
   checkIfClientIsAuthorized,
 } from '../api/ApiRequests';
 import Link from '@material-ui/core/Link';
-import Grid from '@material-ui/core/Grid';
-import { Redirect } from 'react-router-dom';
 import InfoAlert from '../components/InfoAlert';
 import { Box } from '@material-ui/core';
 const queryString = require('querystring');
