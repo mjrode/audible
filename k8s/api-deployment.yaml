@@ -33,7 +33,7 @@ spec:
             - name: TRANSMISSION_USERNAME
               value: mjrode
             - name: GOOGLE_DRIVE_ClIENT_ID
-              value: 780470202475-k4t146ff6bopjgekimobn82v6haqiv7f.apps.googleusercontent.com
+              value: 780470202475-u04o564bkvb9t879g5ust3i4q1cvcb8q.apps.googleusercontent.com
             - name: GOOGLE_DRIVE_PROJECT_ID
               value: quickstart-1583205546909
             - name: GOOGLE_DRIVE_AUTH_URI
