@@ -1,0 +1,20 @@
+apiVersion: cert-manager.io/v1alpha2
+kind: Certificate
+metadata:
+  name: audiupload-tls
+spec:
+  secretName: audiupload.us
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
+  commonName: audiupload.us
+  dnsNames:
+    - audiupload.us
+    - www.audiupload.us
+  acme:
+    config:
+      - http01:
+          ingressClass: nginx
+        domains:
+        - audiupload.us
+        - www.audiupload.us
